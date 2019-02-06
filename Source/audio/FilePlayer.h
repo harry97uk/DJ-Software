@@ -13,7 +13,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "EQ.hpp"
-#include "TimeStretching.cpp"
 
 /**
  Simple FilePlayer class - streams audio from a file.
@@ -78,6 +77,11 @@ public:
     
     float getSampleLevel() {return sampleLevel;}
     
+    float getSampleRate() {return sRate;}
+    
+    int64 getTotalSamples();
+    
+    void setBpmRatio (float bpmRatio);
     
     //AudioSource
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -85,20 +89,26 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
     
 private:
+    TimeSliceThread thread;//thread for the transport source
     AudioFormatReaderSource* currentAudioFileSource;    //reads audio from the file
     AudioTransportSource audioTransportSource;	// this controls the playback of a positionable audio stream, handling the
+    ResamplingAudioSource resampler;
                                             // starting/stopping and sample-rate conversion
-    TimeSliceThread thread;//thread for the transport source
+    
     EQ eq;
     AudioFormatManager formatManager;
     CriticalSection loopLock;
     AudioSourceChannelInfo fullAudio;
-    TimeStretching timeStretching;
+    std::unique_ptr<AudioFormatReader> reader;
+    int64 totalSamples;
     int samplesPerFrame;
     double sRate;
     float currentSample;
     float sampleLevel;
+    float BpmRatio;
     File waveformFile;
+    
+    
     
     
 };

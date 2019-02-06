@@ -20,11 +20,13 @@ Audio::Audio()
     audioSourcePlayer.setSource(&mixerAudioSource);
     
     
-    audioDeviceManager.addMidiInputCallback (String::empty, this);
+    audioDeviceManager.addMidiInputCallback ("", this);
     audioDeviceManager.addAudioCallback (this);
     
     mixerAudioSource.addInputSource(&filePlayer[0], false);
     mixerAudioSource.addInputSource(&filePlayer[1], false);
+    
+
     
     
     }
@@ -32,7 +34,7 @@ Audio::Audio()
 Audio::~Audio()
 {
     audioDeviceManager.removeAudioCallback (this);
-    audioDeviceManager.removeMidiInputCallback (String::empty, this);
+    audioDeviceManager.removeMidiInputCallback ("", this);
     
     mixerAudioSource.removeAllInputs();
 }
@@ -54,7 +56,7 @@ void Audio::audioDeviceIOCallback (const float** inputChannelData,
     
     
     
-    
+
     
     
     //All audio processing is done here
@@ -67,20 +69,18 @@ void Audio::audioDeviceIOCallback (const float** inputChannelData,
     while(numSamples--)
     {
         
-    
+        
         
         inSampL = *outL;
         inSampR = *outR;
         
-       
+
         
         *outL = inSampL * 1.f;
         *outR = inSampR * 1.f;
         
         
-        
-        
-   
+
         
         inL++;
         inR++;

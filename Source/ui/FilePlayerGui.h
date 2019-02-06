@@ -15,7 +15,8 @@
 #include "../audio/FilePlayer.h"
 #include "../audio/EQ.hpp"
 #include "../audio/Audio.h"
-#include "BeatGrid.cpp"
+#include "BeatGrid.hpp"
+#include "../DRowAudio/ColouredAudioThumbnail.hpp"
 #include <thread>
 
 
@@ -32,7 +33,7 @@ public:
     /**
      constructor - receives a reference to a FilePlayer object to control
      */
-    FilePlayerGui(FilePlayer& filePlayer_, EQ& eq_);
+    FilePlayerGui(FilePlayer& filePlayer_, EQ& eq_, bool right);
     
     /**
      Destructor 
@@ -66,7 +67,27 @@ public:
     
     void thumbnailChanged();
     
-    void audioAnalysis(float bpm, String key, float BGS);
+    void setBPM (float bpm);
+    
+    void setOriginalBpm (float originalBpm);
+    
+    void setKey (juce::String key);
+    
+    void setBGS (float BGS);
+    
+    void setBpmRatio (float bpmRatio);
+    
+    void setSyncBpm (float syncBpm);
+    
+    float getBpm() {return Bpm;}
+    float getOBpm() {return OBpm;}
+    float getBGS() {return beatGridStart;}
+    
+    void setMaster (bool isMaster);
+    
+    bool getMaster();
+    
+    void audioAnalysis();
     
     
     
@@ -79,23 +100,34 @@ private:
     FilePlayer& filePlayer;
     EQ& eq;
     AudioThumbnailCache audioCache;
-    AudioThumbnail audioWaveform;
-    BeatGrid beatGrid;
+    ColouredAudioThumbnail audioWaveform;
+    std::unique_ptr<BeatGrid> beatgrid;
+    std::vector<BeatMarkerData> markers;
     Atomic<bool> loop;
     
     TextButton playButton;
     TextButton startLoopButton, endLoopButton;
+    TextButton zoomPlusButton, zoomMinusButton;
+    TextButton syncButton;
     //MouseInputSource click;
     //MouseEvent playbackControl;
     Slider playbackPosition;
     Slider fileGain;
     Slider LFreq, MFreq, HFreq;
+    Slider bpmSlider;
     Label gain, bass, mid, high, playback;
     Label BPM, Key;
     Label time, totalTime;
+    
+    String key1;
     float timeInSeconds, totalTimeInSeconds, pValue;
-    float secondsPerBeat, bpm1;
+    int zoomNo = 8;
+    float nextDownBeatTime;
+    float secondsPerBeat, Bpm, BpmRatio, OBpm;
     float beatGridStart;
+    float SyncBpm;
+    int syncCounter;
+    bool Master, Right, newMaster;
     
 };
 

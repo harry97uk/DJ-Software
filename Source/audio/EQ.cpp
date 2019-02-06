@@ -15,6 +15,7 @@ EQ::EQ() : filter{44100, 44100, 44100}
     filter[0].FilterConfig(kLPF, 250, 0);
     filter[1].FilterConfig(kBPF, 1125, 1750);
     filter[2].FilterConfig(kHPF, 2000, 0);
+
     
     for(int counter = 0; counter < 3; counter++)
     {
@@ -44,6 +45,7 @@ float EQ::getFreqGain(int freqGainNum)
     float gain = freqGain[freqGainNum];
     return gain;
 }
+
 
 float EQ::filterSamples(float sample, UInt16 type)
 {

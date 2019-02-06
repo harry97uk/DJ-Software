@@ -59,6 +59,8 @@ public:
      @see FileBrowserListener*/
     void browserRootChanged (const File& newRoot) override;
     
+    void paint (Graphics& g) override;
+    
     //MenuBarEnums/Callbacks========================================================
     enum Menus
     {
@@ -83,8 +85,8 @@ private:
     FilePlayerGui filePlayerGui1;
     Slider masterGain;
     Slider filePan;
-    TextButton loadA, loadB;
-    WildcardFileFilter wavFiles = WildcardFileFilter("*.wav;*.mp3", "", "audioFiles");
+    TextButton loadA, loadB, masterA, masterB;
+    std::unique_ptr<WildcardFileFilter> wavFiles;
     ScopedPointer<FileBrowserComponent> fileChooser;
     File prepAudioFile;
     std::unique_ptr<AudioSourcePlayer>        sourcePlayer;
@@ -92,6 +94,8 @@ private:
     std::unique_ptr<AudioFormatManager>       formatManager;
     std::unique_ptr<AudioDeviceManager>       audioDeviceManager;
     std::unique_ptr<AudioAnalyser>            analyser;
+    
+    float syncBpm;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

@@ -11,8 +11,8 @@
 
 //==============================================================================
 MainComponent::MainComponent (Audio& audio_) : audio (audio_),
-filePlayerGui(audio.getFilePlayer(0), audio.getFilePlayer(0).getEQ()),
-filePlayerGui1(audio.getFilePlayer(1), audio.getFilePlayer(1).getEQ()),
+filePlayerGui(audio.getFilePlayer(0), audio.getFilePlayer(0).getEQ(), false),
+filePlayerGui1(audio.getFilePlayer(1), audio.getFilePlayer(1).getEQ(), true),
 sourcePlayer(new AudioSourcePlayer),
 readerSource(nullptr),
 formatManager(new AudioFormatManager),
@@ -21,6 +21,7 @@ audioDeviceManager(new AudioDeviceManager)
 
    
     formatManager->registerBasicFormats();
+    wavFiles.reset(new WildcardFileFilter(formatManager->getWildcardForAllFormats(), "", "Audio file filter"));
     audioDeviceManager->initialiseWithDefaultDevices(2, 2);
     audioDeviceManager->addAudioCallback(sourcePlayer.get());
     
@@ -45,12 +46,22 @@ audioDeviceManager(new AudioDeviceManager)
     loadB.setButtonText("B");
     addAndMakeVisible(&loadB);
     
-    fileChooser = new FileBrowserComponent(FileBrowserComponent::FileChooserFlags::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::canSelectDirectories | FileBrowserComponent::FileChooserFlags::useTreeView, File("/Users/harrygardiner/Desktop"), &wavFiles, nullptr);
+    masterA.addListener(this);
+    masterA.setButtonText("Master A");
+    addAndMakeVisible(&masterA);
+    
+    masterB.addListener(this);
+    masterB.setButtonText("Master B");
+    addAndMakeVisible(&masterB);
+    
+    fileChooser = new FileBrowserComponent(FileBrowserComponent::FileChooserFlags::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::canSelectDirectories | FileBrowserComponent::FileChooserFlags::useTreeView, File("/Users/harrygardiner/Music"), wavFiles.get(), nullptr);
     
     fileChooser->addListener(this);
     addAndMakeVisible(fileChooser);
     
+    
     setSize(1250, 650);
+    
 }
 
 MainComponent::~MainComponent()
@@ -64,13 +75,15 @@ MainComponent::~MainComponent()
 void MainComponent::resized()
 {
     
-    filePlayerGui.setBounds (0, 0, getWidth()/2, getHeight()-20);
-    filePlayerGui1.setBounds (getWidth()/2, 0, getWidth()/2, getHeight()-20);
+    filePlayerGui.setBounds (0, 0, getWidth() - getWidth()/3, getHeight()-20);
+    filePlayerGui1.setBounds (getWidth()/3, 0, getWidth() -  getWidth()/3, getHeight()-20);
     masterGain.setBounds(0, getHeight()-20, getWidth(), 20);
     filePan.setBounds(0, getHeight()-40, getWidth(), 20);
     fileChooser->setBounds(0, 350, getWidth()/3, 200);
     loadA.setBounds((getWidth()/2) - 20, 420, 50, 50);
     loadB.setBounds((getWidth()/2) + 20, 420, 50, 50);
+    masterA.setBounds((getWidth()/2) - 60, 420, 50, 50);
+    masterB.setBounds((getWidth()/2) + 60, 420, 50, 50);
     
 }
 
@@ -92,13 +105,89 @@ void MainComponent::buttonClicked(Button* button)
 {
     if (button == &loadA)
     {
-        filePlayerGui.loadFile(prepAudioFile);
-        filePlayerGui.audioAnalysis(analyser->getBPM(), analyser->getKey(), analyser->getBGS());
+        if (filePlayerGui.getMaster() == true)
+        {
+            filePlayerGui.setBpmRatio(filePlayerGui1.getBpm()/filePlayerGui.getBpm());
+            syncBpm = filePlayerGui1.getBpm();
+            filePlayerGui.setSyncBpm(syncBpm);
+            filePlayerGui1.setMaster(true);
+            filePlayerGui.setMaster(false);
+            masterB.setButtonText("Master B On");
+            masterA.setButtonText("Master A");
+            filePlayerGui.loadFile(prepAudioFile);
+            filePlayerGui.setBPM(analyser->getBPM());
+            filePlayerGui.setOriginalBpm(analyser->getBPM());
+            filePlayerGui.setKey(analyser->getKey());
+            filePlayerGui.setBGS(analyser->getBGS());
+            filePlayerGui.audioAnalysis();
+        }
+        else if (filePlayerGui.getMaster() == false)
+        {
+            filePlayerGui.loadFile(prepAudioFile);
+            filePlayerGui.setBPM(analyser->getBPM());
+            filePlayerGui.setOriginalBpm(analyser->getBPM());
+            filePlayerGui.setKey(analyser->getKey());
+            filePlayerGui.setBGS(analyser->getBGS());
+            filePlayerGui.audioAnalysis();
+        }
+        
+        
     }
     else if (button == &loadB)
     {
-        filePlayerGui1.loadFile(prepAudioFile);
-        filePlayerGui1.audioAnalysis(analyser->getBPM(), analyser->getKey(), analyser->getBGS());
+        if (filePlayerGui1.getMaster() == true)
+        {
+            filePlayerGui1.setBpmRatio(filePlayerGui.getBpm()/filePlayerGui1.getBpm());
+            syncBpm = filePlayerGui.getBpm();
+            filePlayerGui1.setSyncBpm(syncBpm);
+            filePlayerGui.setMaster(true);
+            filePlayerGui1.setMaster(false);
+            masterA.setButtonText("Master A On");
+            masterB.setButtonText("Master B");
+            filePlayerGui1.loadFile(prepAudioFile);
+            filePlayerGui1.setBPM(analyser->getBPM());
+            filePlayerGui1.setOriginalBpm(analyser->getBPM());
+            filePlayerGui1.setKey(analyser->getKey());
+            filePlayerGui1.setBGS(analyser->getBGS());
+            filePlayerGui1.audioAnalysis();
+        }
+        else if (filePlayerGui1.getMaster() == false)
+        {
+            filePlayerGui1.loadFile(prepAudioFile);
+            filePlayerGui1.setBPM(analyser->getBPM());
+            filePlayerGui1.setOriginalBpm(analyser->getBPM());
+            filePlayerGui1.setKey(analyser->getKey());
+            filePlayerGui1.setBGS(analyser->getBGS());
+            filePlayerGui1.audioAnalysis();
+        }
+        
+        
+    }
+    else if (button == &masterA)
+    {
+        filePlayerGui1.setBpmRatio(filePlayerGui.getBpm()/filePlayerGui1.getBpm());
+        syncBpm = filePlayerGui.getBpm();
+        filePlayerGui1.setSyncBpm(syncBpm);
+        filePlayerGui.setMaster(true);
+        filePlayerGui1.setMaster(false);
+        masterA.setButtonText("Master A On");
+        masterB.setButtonText("Master B");
+        masterA.setColour(masterA.buttonColourId, juce::Colours::red);
+        masterB.setColour(masterB.buttonColourId, juce::Colours::darkgrey);
+        
+    }
+    else if (button == &masterB)
+    {
+        filePlayerGui.setBpmRatio(filePlayerGui1.getBpm()/filePlayerGui.getBpm());
+        syncBpm = filePlayerGui1.getBpm();
+        filePlayerGui.setSyncBpm(syncBpm);
+        filePlayerGui1.setMaster(true);
+        filePlayerGui.setMaster(false);
+        masterB.setButtonText("Master B On");
+        masterA.setButtonText("Master A");
+        masterB.setColour(masterB.buttonColourId, juce::Colours::red);
+        masterA.setColour(masterA.buttonColourId, juce::Colours::darkgrey);
+        
     }
 }
 void MainComponent::selectionChanged()
@@ -114,7 +203,7 @@ void MainComponent::fileClicked(const File& file, const MouseEvent& e)
     
     if(audioFile.existsAsFile())
     {
-        if (audioFile.getFileExtension() == ".wav" || audioFile.getFileExtension() == ".m4a" || audioFile.getFileExtension() == ".mp3")
+        if (wavFiles->isFileSuitable(audioFile))
         {
             
             prepAudioFile = audioFile;
@@ -160,6 +249,12 @@ void MainComponent::fileDoubleClicked(const File& file)
 void MainComponent::browserRootChanged(const File& newroot)
 {
     
+}
+
+void MainComponent::paint(juce::Graphics &g)
+{
+    g.setColour(Colours::red);
+    g.drawLine(getWidth()/2, 65, getWidth()/2, 265);
 }
 
 //MenuBarCallbacks==============================================================

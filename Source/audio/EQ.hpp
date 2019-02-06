@@ -40,6 +40,8 @@ public:
      @return Returns the gain value of the selected frequency range*/
     float getFreqGain(int freqGainNum);
     
+
+    
     
 private:
     CriticalSection eqLock;

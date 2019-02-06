@@ -2,34 +2,54 @@
 
 <JUCERPROJECT id="D7j2Et" name="JuceBasicAudio" projectType="guiapp" version="1.0.0"
               bundleIdentifier="com.yourcompany.JuceBasicAudio" includeBinaryInAppConfig="1"
-              jucerVersion="5.1.1" displaySplashScreen="1" reportAppUsage="1"
+              jucerVersion="5.4.1" displaySplashScreen="1" reportAppUsage="1"
               splashScreenColour="Dark" cppLanguageStandard="11">
   <MAINGROUP id="oht8lM" name="JuceBasicAudio">
     <GROUP id="{956C6E0C-B36F-1A18-0A05-3D3C7CED70E8}" name="Source">
-      <FILE id="qibqAB" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{2B781AD3-C2AF-5605-6983-E9EBD18CCD51}" name="audio">
-        <FILE id="DqAjx8" name="Audio.cpp" compile="1" resource="0" file="Source/audio/Audio.cpp"/>
-        <FILE id="WD0KHR" name="Audio.h" compile="0" resource="0" file="Source/audio/Audio.h"/>
-        <FILE id="JIWdkZ" name="FilePlayer.cpp" compile="1" resource="0" file="Source/audio/FilePlayer.cpp"/>
-        <FILE id="nFJVed" name="FilePlayer.h" compile="0" resource="0" file="Source/audio/FilePlayer.h"/>
+        <FILE id="bOFAtA" name="Audio.cpp" compile="1" resource="0" file="Source/audio/Audio.cpp"/>
+        <FILE id="IHdo2K" name="Audio.h" compile="0" resource="0" file="Source/audio/Audio.h"/>
+        <FILE id="Rd2lmu" name="AudioAnalyser.cpp" compile="1" resource="0"
+              file="Source/audio/AudioAnalyser.cpp"/>
+        <FILE id="G6WXZN" name="Effects.cpp" compile="1" resource="0" file="Source/audio/Effects.cpp"/>
+        <FILE id="wyDPcd" name="Effects.hpp" compile="0" resource="0" file="Source/audio/Effects.hpp"/>
+        <FILE id="zFTfSj" name="EQ.cpp" compile="1" resource="0" file="Source/audio/EQ.cpp"/>
+        <FILE id="pgWNQ6" name="EQ.hpp" compile="0" resource="0" file="Source/audio/EQ.hpp"/>
+        <FILE id="EJcTHW" name="FilePlayer.cpp" compile="1" resource="0" file="Source/audio/FilePlayer.cpp"/>
+        <FILE id="ba4CqB" name="FilePlayer.h" compile="0" resource="0" file="Source/audio/FilePlayer.h"/>
+        <FILE id="ANu9P6" name="SimpleFilter.cpp" compile="1" resource="0"
+              file="Source/audio/SimpleFilter.cpp"/>
+        <FILE id="PWEAX8" name="SimpleFilter.hpp" compile="0" resource="0"
+              file="Source/audio/SimpleFilter.hpp"/>
       </GROUP>
-      <GROUP id="{5A4D8E6D-A56B-1536-12CC-470C3970C7B6}" name="ui">
-        <FILE id="GIiRQp" name="FilePlayerGui.cpp" compile="1" resource="0"
+      <GROUP id="{80857E1B-E309-130B-FF0E-9F0C95357F52}" name="DRowAudio">
+        <FILE id="y4BL5b" name="BiquadFilter.cpp" compile="1" resource="0"
+              file="Source/DRowAudio/BiquadFilter.cpp"/>
+        <FILE id="m27RQ7" name="BiquadFilter.hpp" compile="0" resource="0"
+              file="Source/DRowAudio/BiquadFilter.hpp"/>
+        <FILE id="EHtZR9" name="ColouredAudioThumbnail.cpp" compile="1" resource="0"
+              file="Source/DRowAudio/ColouredAudioThumbnail.cpp"/>
+        <FILE id="qfLts0" name="ColouredAudioThumbnail.hpp" compile="0" resource="0"
+              file="Source/DRowAudio/ColouredAudioThumbnail.hpp"/>
+      </GROUP>
+      <GROUP id="{B143658F-5500-9ED8-E911-6DE1CD81F1AC}" name="ui">
+        <FILE id="OwxWvn" name="BeatGrid.cpp" compile="1" resource="0" file="Source/ui/BeatGrid.cpp"/>
+        <FILE id="w0RNHt" name="BeatGrid.hpp" compile="0" resource="0" file="Source/ui/BeatGrid.hpp"/>
+        <FILE id="vJpyaq" name="FilePlayerGui.cpp" compile="1" resource="0"
               file="Source/ui/FilePlayerGui.cpp"/>
-        <FILE id="PTJFdR" name="FilePlayerGui.h" compile="0" resource="0" file="Source/ui/FilePlayerGui.h"/>
-        <FILE id="V07QXp" name="MainComponent.cpp" compile="1" resource="0"
+        <FILE id="HPsDEE" name="FilePlayerGui.h" compile="0" resource="0" file="Source/ui/FilePlayerGui.h"/>
+        <FILE id="GhsolS" name="MainComponent.cpp" compile="1" resource="0"
               file="Source/ui/MainComponent.cpp"/>
-        <FILE id="pkhL76" name="MainComponent.h" compile="0" resource="0" file="Source/ui/MainComponent.h"/>
+        <FILE id="HCznS1" name="MainComponent.h" compile="0" resource="0" file="Source/ui/MainComponent.h"/>
       </GROUP>
+      <FILE id="FuuPoE" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       isDebug="1" optimisation="1" targetName="JuceBasicAudio"/>
-        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       isDebug="0" optimisation="2" targetName="JuceBasicAudio"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="JuceBasicAudio"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="JuceBasicAudio"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../Juce/modules"/>
@@ -102,4 +122,7 @@
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
   </MODULES>
   <JUCEOPTIONS/>
+  <LIVE_SETTINGS>
+    <OSX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>
