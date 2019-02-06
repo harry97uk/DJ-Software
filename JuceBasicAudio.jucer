@@ -46,10 +46,14 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="-lSuperpoweredAudioOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="JuceBasicAudio"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="JuceBasicAudio"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="JuceBasicAudio"
+                       headerPath="&#9;&#9;&#9;&#9;&#9;$(PROJECT_DIR)/../../Superpowered&#10;"
+                       libraryPath="&#9;&#9;&#9;&#9;&#9;$(PROJECT_DIR)/../../Superpowered&#10;"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="JuceBasicAudio"
+                       headerPath="&#9;&#9;&#9;&#9;&#9;$(PROJECT_DIR)/../../Superpowered&#10;"
+                       libraryPath="&#9;&#9;&#9;&#9;&#9;$(PROJECT_DIR)/../../Superpowered&#10;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../Juce/modules"/>
