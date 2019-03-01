@@ -13,6 +13,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "EQ.hpp"
+#include "Effects.hpp"
+#include "DJAudioSource.hpp"
 
 /**
  Simple FilePlayer class - streams audio from a file.
@@ -81,7 +83,9 @@ public:
     
     int64 getTotalSamples();
     
-    void setBpmRatio (float bpmRatio);
+    void setBpmRatio (double bpmRatio);
+    
+    void setFilterValue (float filterVal);
     
     //AudioSource
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -92,10 +96,12 @@ private:
     TimeSliceThread thread;//thread for the transport source
     AudioFormatReaderSource* currentAudioFileSource;    //reads audio from the file
     AudioTransportSource audioTransportSource;	// this controls the playback of a positionable audio stream, handling the
-    ResamplingAudioSource resampler;
+    DJAudioSource audioSource;
+    
                                             // starting/stopping and sample-rate conversion
     
     EQ eq;
+    Effects effects;
     AudioFormatManager formatManager;
     CriticalSection loopLock;
     AudioSourceChannelInfo fullAudio;
@@ -104,8 +110,9 @@ private:
     int samplesPerFrame;
     double sRate;
     float currentSample;
+    float filterValue;
     float sampleLevel;
-    float BpmRatio;
+    double BpmRatio;
     File waveformFile;
     
     

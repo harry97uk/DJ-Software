@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "/Users/harrygardiner/Desktop/Dissertation Stuff/SuperpoweredSDK/Superpowered/SuperpoweredAnalyzer.h"
+#include "../Superpowered/SuperpoweredAnalyzer.h"
 
 
 #define WAVEFORM_RESOLUTION 150

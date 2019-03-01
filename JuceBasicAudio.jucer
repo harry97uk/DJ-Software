@@ -22,16 +22,6 @@
         <FILE id="PWEAX8" name="SimpleFilter.hpp" compile="0" resource="0"
               file="Source/audio/SimpleFilter.hpp"/>
       </GROUP>
-      <GROUP id="{80857E1B-E309-130B-FF0E-9F0C95357F52}" name="DRowAudio">
-        <FILE id="y4BL5b" name="BiquadFilter.cpp" compile="1" resource="0"
-              file="Source/DRowAudio/BiquadFilter.cpp"/>
-        <FILE id="m27RQ7" name="BiquadFilter.hpp" compile="0" resource="0"
-              file="Source/DRowAudio/BiquadFilter.hpp"/>
-        <FILE id="EHtZR9" name="ColouredAudioThumbnail.cpp" compile="1" resource="0"
-              file="Source/DRowAudio/ColouredAudioThumbnail.cpp"/>
-        <FILE id="qfLts0" name="ColouredAudioThumbnail.hpp" compile="0" resource="0"
-              file="Source/DRowAudio/ColouredAudioThumbnail.hpp"/>
-      </GROUP>
       <GROUP id="{B143658F-5500-9ED8-E911-6DE1CD81F1AC}" name="ui">
         <FILE id="OwxWvn" name="BeatGrid.cpp" compile="1" resource="0" file="Source/ui/BeatGrid.cpp"/>
         <FILE id="w0RNHt" name="BeatGrid.hpp" compile="0" resource="0" file="Source/ui/BeatGrid.hpp"/>
@@ -41,6 +31,16 @@
         <FILE id="GhsolS" name="MainComponent.cpp" compile="1" resource="0"
               file="Source/ui/MainComponent.cpp"/>
         <FILE id="HCznS1" name="MainComponent.h" compile="0" resource="0" file="Source/ui/MainComponent.h"/>
+      </GROUP>
+      <GROUP id="{80857E1B-E309-130B-FF0E-9F0C95357F52}" name="DRowAudio">
+        <FILE id="y4BL5b" name="BiquadFilter.cpp" compile="1" resource="0"
+              file="Source/DRowAudio/BiquadFilter.cpp"/>
+        <FILE id="m27RQ7" name="BiquadFilter.hpp" compile="0" resource="0"
+              file="Source/DRowAudio/BiquadFilter.hpp"/>
+        <FILE id="EHtZR9" name="ColouredAudioThumbnail.cpp" compile="1" resource="0"
+              file="Source/DRowAudio/ColouredAudioThumbnail.cpp"/>
+        <FILE id="qfLts0" name="ColouredAudioThumbnail.hpp" compile="0" resource="0"
+              file="Source/DRowAudio/ColouredAudioThumbnail.hpp"/>
       </GROUP>
       <FILE id="FuuPoE" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>

@@ -109,7 +109,11 @@ FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, EQ& eq_, bool right)
     bpmSlider.addListener(this);
     addAndMakeVisible(&bpmSlider);
     
-    
+    filterSlider.setSliderStyle(juce::Slider::Rotary);
+    filterSlider.setRange(-1, 1);
+    filterSlider.setValue(0);
+    filterSlider.addListener(this);
+    addAndMakeVisible(&filterSlider);
     
     audioWaveform.addChangeListener(this);
     
@@ -146,6 +150,7 @@ void FilePlayerGui::resized()
         HFreq.setBounds(0, 60, getWidth()/2, 60);
         
         bpmSlider.setBounds(0, 250, getWidth()/3, 100);
+        filterSlider.setBounds(getWidth()/4, 250, getWidth()/3, 100);
         BPM.setBounds(getWidth()/2 * 0.75, 50, getWidth()/4, 40);
         Key.setBounds(getWidth()/2 * 0.75, 170, getWidth()/4, 40);
         time.setBounds(getWidth()/2 * 0.75, 110, getWidth()/4, 40);
@@ -173,6 +178,7 @@ void FilePlayerGui::resized()
         HFreq.setBounds(0 + getWidth()/2, 60, getWidth()/2, 60);
         
         bpmSlider.setBounds(0 + getWidth()/2, 250, getWidth()/3, 100);
+        filterSlider.setBounds(getWidth()/4 + getWidth()/2, 250, getWidth()/3, 100);
         BPM.setBounds((getWidth()/2 * 0.75) + getWidth()/2, 50, getWidth()/4, 40);
         Key.setBounds((getWidth()/2 * 0.75)+ getWidth()/2, 170 , getWidth()/4, 40);
         time.setBounds((getWidth()/2 * 0.75)+ getWidth()/2, 110, getWidth()/4, 40);
@@ -214,6 +220,7 @@ void FilePlayerGui::buttonClicked(Button* button)
             setBPM(SyncBpm);
             filePlayer.setBpmRatio(BpmRatio);
             audioAnalysis();
+            waveformRatio = BpmRatio;
             
             
             
@@ -252,7 +259,11 @@ void FilePlayerGui::loadFile(File audioFile)
                 
                 filePlayer.loadFile(audioFile);
                 audioWaveform.setSource (new FileInputSource (audioFile));
+            
                 playButton.setButtonText("PLAY");
+                waveformRatio = 1;
+                totalMeasures = (filePlayer.getLengthInSeconds()/60) * OBpm;
+                
             
             
         }
@@ -265,12 +276,12 @@ void FilePlayerGui::loadFile(File audioFile)
     
 }
 
-void FilePlayerGui::setBPM(float bpm)
+void FilePlayerGui::setBPM(double bpm)
 {
     Bpm = bpm;
 }
 
-void FilePlayerGui::setOriginalBpm(float originalBpm)
+void FilePlayerGui::setOriginalBpm(double originalBpm)
 {
     OBpm = originalBpm;
 }
@@ -285,13 +296,13 @@ void FilePlayerGui::setBGS(float BGS)
     beatGridStart = BGS/1000;
 }
 
-void FilePlayerGui::setBpmRatio(float bpmRatio)
+void FilePlayerGui::setBpmRatio(double bpmRatio)
 {
     BpmRatio = bpmRatio;
     
 }
 
-void FilePlayerGui::setSyncBpm(float syncBpm)
+void FilePlayerGui::setSyncBpm(double syncBpm)
 {
     SyncBpm = syncBpm;
 }
@@ -358,8 +369,8 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
     g.setColour (Colours::black);
     g.fillRect (thumbnailBounds);
     
-    beatgrid.reset(new BeatGrid(getOBpm(), filePlayer.getSampleRate(), getBGS()*filePlayer.getSampleRate()));
-    markers = beatgrid->FindBeats(0, totalTimeInSeconds * filePlayer.getSampleRate());
+    beatgrid.reset(new BeatGrid(getBpm(), filePlayer.getSampleRate(), getBGS()*(filePlayer.getSampleRate())));
+    markers = beatgrid->FindBeats(0, totalTimeInSeconds * (filePlayer.getSampleRate()));
     for (int counter = 0; counter < markers.size(); counter++)
     {
         if (markers[counter].downBeat == true)
@@ -371,10 +382,10 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
                 g.drawLine((((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()) + getWidth()/2, thumbnailBounds.getY(), (((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()) + getWidth()/2, thumbnailBounds.getY() + 100);
                 nextDownBeatTime = markers[counter].seconds;
             }
-            else if (thumbnailBounds.getY() == 165 && markers[counter].seconds < timeInSeconds + zoomNo)
+            else if (thumbnailBounds.getY() == 165 && markers[counter].seconds < timeInSeconds + (zoomNo))
             {
                 g.setColour(Colours::yellow);
-                g.drawLine((((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()), thumbnailBounds.getY(), (((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()), thumbnailBounds.getY() + 100);
+                g.drawLine((((markers[counter].seconds/(zoomNo)) - (timeInSeconds/(zoomNo))) * thumbnailBounds.getWidth()), thumbnailBounds.getY(), (((markers[counter].seconds/(zoomNo)) - (timeInSeconds/(zoomNo))) * thumbnailBounds.getWidth()), thumbnailBounds.getY() + 100);
             }
             
             
@@ -386,10 +397,10 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
                 g.setColour(Colours::darkgrey);
                 g.drawLine((((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()) + getWidth()/2, thumbnailBounds.getY(), (((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()) + getWidth()/2, thumbnailBounds.getY() + 100);
             }
-            else if (thumbnailBounds.getY() == 165 && markers[counter].seconds < timeInSeconds + zoomNo)
+            else if (thumbnailBounds.getY() == 165 && markers[counter].seconds < timeInSeconds + (zoomNo))
             {
                 g.setColour(Colours::darkgrey);
-                g.drawLine((((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()), thumbnailBounds.getY(), (((markers[counter].seconds/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth()), thumbnailBounds.getY() + 100);
+                g.drawLine((((markers[counter].seconds/(zoomNo)) - (timeInSeconds/(zoomNo))) * thumbnailBounds.getWidth()), thumbnailBounds.getY(), (((markers[counter].seconds/(zoomNo)) - (timeInSeconds/(zoomNo))) * thumbnailBounds.getWidth()), thumbnailBounds.getY() + 100);
             }
         }
 
@@ -409,12 +420,18 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
                                           audioWaveform.getApproximatePeak() * 0.8f);
     }
     else
-    audioWaveform.drawColouredChannel(g,
-                              thumbnailBounds,
-                              timeInSeconds,                                    // start time
-                              timeInSeconds + zoomNo,
-                              1,                                        // end time
-                              audioWaveform.getApproximatePeak() * 0.8f);
+    {
+        
+            audioWaveform.drawColouredChannel(g,
+                                              thumbnailBounds,
+                                              timeInSeconds,                                    // start time
+                                              (timeInSeconds) + (zoomNo),
+                                              1,                                        // end time
+                                              audioWaveform.getApproximatePeak() * 0.8f);
+        
+        
+    
+    }
     
 }
 
@@ -493,6 +510,7 @@ void FilePlayerGui::timerCallback()
     if (filePlayer.isPlaying() == true)
     {
         startTimer(10);
+        
         timeInSeconds = filePlayer.getLengthInSeconds() * filePlayer.getPosition();
         
         totalTimeInSeconds = filePlayer.getLengthInSeconds();

@@ -67,17 +67,17 @@ public:
     
     void thumbnailChanged();
     
-    void setBPM (float bpm);
+    void setBPM (double bpm);
     
-    void setOriginalBpm (float originalBpm);
+    void setOriginalBpm (double originalBpm);
     
     void setKey (juce::String key);
     
     void setBGS (float BGS);
     
-    void setBpmRatio (float bpmRatio);
+    void setBpmRatio (double bpmRatio);
     
-    void setSyncBpm (float syncBpm);
+    void setSyncBpm (double syncBpm);
     
     float getBpm() {return Bpm;}
     float getOBpm() {return OBpm;}
@@ -115,17 +115,19 @@ private:
     Slider fileGain;
     Slider LFreq, MFreq, HFreq;
     Slider bpmSlider;
+    Slider filterSlider;
     Label gain, bass, mid, high, playback;
     Label BPM, Key;
     Label time, totalTime;
     
     String key1;
     float timeInSeconds, totalTimeInSeconds, pValue;
-    int zoomNo = 8;
+    float zoomNo = 8.0;
     float nextDownBeatTime;
-    float secondsPerBeat, Bpm, BpmRatio, OBpm;
+    double secondsPerBeat, Bpm, BpmRatio, OBpm;
+    float totalMeasures, waveformRatio = 1.0;
     float beatGridStart;
-    float SyncBpm;
+    double SyncBpm;
     int syncCounter;
     bool Master, Right, newMaster;
     

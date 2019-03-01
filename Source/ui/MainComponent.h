@@ -12,7 +12,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../audio/Audio.h"
 #include "FilePlayerGui.h"
-#include "/Users/harrygardiner/Desktop/SDA/DJ-Software-Application-master/Source/audio/AudioAnalyser.cpp"
+#include "../audio/AudioAnalyser.cpp"
 #include <stdio.h>
 
 

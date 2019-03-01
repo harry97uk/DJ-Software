@@ -5,11 +5,11 @@
     <Filter Include="JuceBasicAudio\Source\audio">
       <UniqueIdentifier>{BBC0D4B3-C41B-B8E7-8C37-C0DC41D49DCC}</UniqueIdentifier>
     </Filter>
-    <Filter Include="JuceBasicAudio\Source\DRowAudio">
-      <UniqueIdentifier>{36CCB5A4-E4A1-5EAA-EA14-5686EFA93A36}</UniqueIdentifier>
-    </Filter>
     <Filter Include="JuceBasicAudio\Source\ui">
       <UniqueIdentifier>{7B4F7BC8-C193-934A-F57D-8D02758E76D9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JuceBasicAudio\Source\DRowAudio">
+      <UniqueIdentifier>{36CCB5A4-E4A1-5EAA-EA14-5686EFA93A36}</UniqueIdentifier>
     </Filter>
     <Filter Include="JuceBasicAudio\Source">
       <UniqueIdentifier>{237DB4B7-BB4D-E022-906C-8481E9195426}</UniqueIdentifier>
@@ -415,12 +415,6 @@
     <ClCompile Include="..\..\Source\audio\SimpleFilter.cpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\DRowAudio\BiquadFilter.cpp">
-      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.cpp">
-      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\ui\BeatGrid.cpp">
       <Filter>JuceBasicAudio\Source\ui</Filter>
     </ClCompile>
@@ -429,6 +423,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\MainComponent.cpp">
       <Filter>JuceBasicAudio\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\DRowAudio\BiquadFilter.cpp">
+      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.cpp">
+      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>JuceBasicAudio\Source</Filter>
@@ -2280,12 +2280,6 @@
     <ClInclude Include="..\..\Source\audio\SimpleFilter.hpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\DRowAudio\BiquadFilter.hpp">
-      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.hpp">
-      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\ui\BeatGrid.hpp">
       <Filter>JuceBasicAudio\Source\ui</Filter>
     </ClInclude>
@@ -2294,6 +2288,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\MainComponent.h">
       <Filter>JuceBasicAudio\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\DRowAudio\BiquadFilter.hpp">
+      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.hpp">
+      <Filter>JuceBasicAudio\Source\DRowAudio</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Juce\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>

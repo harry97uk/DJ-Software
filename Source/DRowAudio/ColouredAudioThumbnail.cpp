@@ -1110,3 +1110,8 @@ void ColouredAudioThumbnail::drawChannels (Graphics& g, const Rectangle<int>& ar
                      startTimeSeconds, endTimeSeconds, i, verticalZoomFactor);
     }
 }
+
+void ColouredAudioThumbnail::setSampleRate(float sRate)
+{
+    sampleRate = sRate;
+}

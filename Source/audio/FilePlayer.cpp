@@ -12,7 +12,7 @@
 #include <memory>
 
 FilePlayer::FilePlayer() :  thread ("FilePlayThread"),
-                            resampler (&audioTransportSource, false, 2)
+                            effects(getSampleRate())
 {
     thread.startThread();
     currentAudioFileSource = NULL;
@@ -25,8 +25,7 @@ FilePlayer::FilePlayer() :  thread ("FilePlayThread"),
  */
 FilePlayer::~FilePlayer()
 {
-    audioTransportSource.setSource(nullptr);//unload the current file
-    deleteAndZero(currentAudioFileSource);//delete the current file
+    //unload the current file
     thread.stopThread(100);
 }
 
@@ -37,11 +36,11 @@ void FilePlayer::setPlaying (const bool newState)
 {
     if(newState == true)
     {
-        audioTransportSource.start();
+        audioSource.SetPlaying(true);
     }
     else
     {
-        audioTransportSource.stop();
+        audioSource.SetPlaying(false);
     }
 }
 
@@ -50,7 +49,7 @@ void FilePlayer::setPlaying (const bool newState)
  */
 bool FilePlayer::isPlaying () const
 {
-    return audioTransportSource.isPlaying();
+    return audioSource.IsPlaying();
 }
 
 
@@ -61,8 +60,7 @@ void FilePlayer::loadFile(const File& newFile)
 {
     // unload the previous file source and delete it..
     setPlaying(false);
-    audioTransportSource.setSource (0);
-    deleteAndZero (currentAudioFileSource);
+    
     
     // create a new file source from the file..
     // get a format manager and set it up with the basic types (wav, ogg and aiff).
@@ -72,16 +70,15 @@ void FilePlayer::loadFile(const File& newFile)
     if (reader != 0)
     {
         //currentFile = audioFile;
-        currentAudioFileSource = new AudioFormatReaderSource (reader, true);
+
+        audioSource.SetSource(reader, false);
+       
         
         // ..and plug it into our transport source
-        audioTransportSource.setSource (currentAudioFileSource,
-                                   (int)currentAudioFileSource->getTotalLength(),     //buffer this many samples ahead
-                                   &thread,
-                                   reader->sampleRate);
+  
+       
         
-        
-        totalSamples = currentAudioFileSource->getTotalLength();
+        totalSamples = reader->lengthInSamples;
         
         waveformFile = newFile;
     }
@@ -89,30 +86,31 @@ void FilePlayer::loadFile(const File& newFile)
 
 void FilePlayer::setPosition(float newPosition)
 {
-    audioTransportSource.setPosition(newPosition * audioTransportSource.getLengthInSeconds());
+    audioSource.SetPlayheadSample(newPosition * totalSamples);
 }
 
 float FilePlayer::getPosition()
 {
     float position;
-    position = audioTransportSource.getCurrentPosition()/audioTransportSource.getLengthInSeconds();
+    position = audioSource.GetPlayhead()/totalSamples;
     return position;
 }
 
 double FilePlayer::getLengthInSeconds()
 {
-    return audioTransportSource.getLengthInSeconds();
+    return (totalSamples/BpmRatio) / getSampleRate();
+    
 }
 
 void FilePlayer::setGain(float sliderValue)
 {
-    audioTransportSource.setGain(sliderValue);
+    audioSource.SetGain(sliderValue);
 }
 
 float FilePlayer::getGain()
 {
     float gain;
-    gain = audioTransportSource.getGain();
+    gain = audioSource.GetGain();
     return gain;
 }
 
@@ -128,9 +126,15 @@ int64 FilePlayer::getTotalSamples()
     return totalSamples;
 }
 
-void FilePlayer::setBpmRatio(float bpmRatio)
+void FilePlayer::setBpmRatio(double bpmRatio)
 {
     BpmRatio = bpmRatio;
+    
+}
+
+void FilePlayer::setFilterValue(float filterVal)
+{
+    filterValue = filterVal;
 }
 
 //void FilePlayer::setLooping(bool newState, float startPos, float secondsPerBeat)
@@ -157,46 +161,52 @@ void FilePlayer::setBpmRatio(float bpmRatio)
 //AudioSource
 void FilePlayer::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    sRate = sampleRate;
+    
     samplesPerFrame = samplesPerBlockExpected;
-    resampler.prepareToPlay (samplesPerBlockExpected, sampleRate);
-    resampler.setResamplingRatio (BpmRatio);
-    reader.reset();
+    sRate = sampleRate;
+    
 }
 
 void FilePlayer::releaseResources()
 {
-    resampler.releaseResources();
+    audioSource.releaseResources();
 }
 
 void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
 {
-    resampler.setResamplingRatio (BpmRatio);
-    resampler.getNextAudioBlock (bufferToFill);
+    audioSource.SetPitch(BpmRatio);
+    audioSource.getNextAudioBlock (bufferToFill);
+    
     
     
     for (int counter = bufferToFill.startSample; counter < bufferToFill.numSamples; counter++)
     {
         float bass[2], mid[2], high[2];
-        
-        
-        
+
+
+
         for (int numChans = 0; numChans < bufferToFill.buffer->getNumChannels(); numChans++)
         {
             float sample = bufferToFill.buffer->getSample(numChans, counter);
-            
+
+
 
             sampleLevel = sample;
 
             currentSample = counter;
+
 
             bass[numChans] = eq.filterSamples(sample, kBass);
             mid[numChans] = eq.filterSamples(sample, kMid);
             high[numChans] = eq.filterSamples(sample, kHigh);
 
 
-            bufferToFill.buffer->setSample(numChans, counter, ((sample +(bass[numChans] * eq.getFreqGain(0)) + (mid[numChans] * eq.getFreqGain(1)) + (high[numChans] * eq.getFreqGain(2)))));
- 
+            bufferToFill.buffer->setSample(numChans, counter, (((sample +(bass[numChans] * eq.getFreqGain(0)) + (mid[numChans] * eq.getFreqGain(1)) + (high[numChans] * eq.getFreqGain(2))))));
+
+
+
+
+
 
         }
     }

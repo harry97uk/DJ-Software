@@ -204,6 +204,8 @@ public:
     /** Returns the hash code that was set by setSource() or setReader(). */
     int64 getHashCode() const;
     
+    void setSampleRate(float sRate);
+    
 private:
     //==============================================================================
     AudioFormatManager& formatManagerToUse;

@@ -144,11 +144,11 @@
     <ClCompile Include="..\..\Source\audio\EQ.cpp"/>
     <ClCompile Include="..\..\Source\audio\FilePlayer.cpp"/>
     <ClCompile Include="..\..\Source\audio\SimpleFilter.cpp"/>
-    <ClCompile Include="..\..\Source\DRowAudio\BiquadFilter.cpp"/>
-    <ClCompile Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.cpp"/>
     <ClCompile Include="..\..\Source\ui\BeatGrid.cpp"/>
     <ClCompile Include="..\..\Source\ui\FilePlayerGui.cpp"/>
     <ClCompile Include="..\..\Source\ui\MainComponent.cpp"/>
+    <ClCompile Include="..\..\Source\DRowAudio\BiquadFilter.cpp"/>
+    <ClCompile Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\..\Juce\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -1854,11 +1854,11 @@
     <ClInclude Include="..\..\Source\audio\EQ.hpp"/>
     <ClInclude Include="..\..\Source\audio\FilePlayer.h"/>
     <ClInclude Include="..\..\Source\audio\SimpleFilter.hpp"/>
-    <ClInclude Include="..\..\Source\DRowAudio\BiquadFilter.hpp"/>
-    <ClInclude Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.hpp"/>
     <ClInclude Include="..\..\Source\ui\BeatGrid.hpp"/>
     <ClInclude Include="..\..\Source\ui\FilePlayerGui.h"/>
     <ClInclude Include="..\..\Source\ui\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\DRowAudio\BiquadFilter.hpp"/>
+    <ClInclude Include="..\..\Source\DRowAudio\ColouredAudioThumbnail.hpp"/>
     <ClInclude Include="..\..\..\Juce\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\Juce\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>
     <ClInclude Include="..\..\..\Juce\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>
