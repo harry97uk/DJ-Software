@@ -11,17 +11,23 @@
 #include <stdio.h>
 #include "SimpleFilter.hpp"
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Superpowered/SuperpoweredFilter.h"
+
 
 class Effects
 {
 public:
+    Effects(float sampleRate);
     
+    ~Effects();
+    
+    float* filterAudio(float* inputAudio, int samplepf, float sliderValue);
     
     
     
     
 private:
-    
+    SuperpoweredFilter filter;
 };
 
 #endif /* Effects_hpp */
