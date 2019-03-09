@@ -25,6 +25,7 @@
  */
 #include "../JuceLibraryCode/JuceHeader.h"
 
+
 class DJAudioSource
 : public  AudioSource
 {
@@ -155,6 +156,8 @@ public:
      If no std::function is set, then DJAudioSource will simply
      increment the playhead by the pitch.
      */
+    
+    
     std::function<double (  double currentPosition
                             , double  currentPitch
                             , int      numSamples
@@ -184,8 +187,11 @@ private:
     CatmullRomInterpolator interpolator[2];
     OptionalScopedPointer<juce::AudioFormatReader> reader;
     
+    int64 lengthInSamples = 0;
+    int numChannels = 0;
     bool     playing;
     double playhead;
     double  pitch;
-    float    gain;
+    float    gain, lastGain;
+    
 };

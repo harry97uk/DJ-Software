@@ -11,8 +11,7 @@
 #include "FilePlayer.h"
 #include <memory>
 
-FilePlayer::FilePlayer() :  thread ("FilePlayThread"),
-                            effects(getSampleRate())
+FilePlayer::FilePlayer() :  thread ("FilePlayThread")
 {
     thread.startThread();
     currentAudioFileSource = NULL;
@@ -114,11 +113,10 @@ float FilePlayer::getGain()
     return gain;
 }
 
-
-
-float FilePlayer::getNextSample()
+void FilePlayer::setEqFreqGain (float gain, int eqIndex)
 {
-    return currentSample;
+    eq[0].setFreqGain (gain, eqIndex);
+    eq[1].setFreqGain (gain, eqIndex);
 }
 
 int64 FilePlayer::getTotalSamples()
@@ -135,6 +133,16 @@ void FilePlayer::setBpmRatio(double bpmRatio)
 void FilePlayer::setFilterValue(float filterVal)
 {
     filterValue = filterVal;
+}
+
+void FilePlayer::setDelayValue(float delayVal)
+{
+    delayValue = delayVal;
+}
+
+void FilePlayer::setReverbValue(float reverbVal)
+{
+    reverbValue = reverbVal;
 }
 
 //void FilePlayer::setLooping(bool newState, float startPos, float secondsPerBeat)
@@ -164,6 +172,14 @@ void FilePlayer::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
     
     samplesPerFrame = samplesPerBlockExpected;
     sRate = sampleRate;
+    audioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    delay[0].initialize(sampleRate);
+    delay[1].initialize(sampleRate);
+    for (int counter = 0; counter < 16; counter++)
+    {
+        reverb[0][counter].initialize(sampleRate);
+        reverb[1][counter].initialize(sampleRate);
+    }
     
 }
 
@@ -177,37 +193,33 @@ void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
     audioSource.SetPitch(BpmRatio);
     audioSource.getNextAudioBlock (bufferToFill);
     
-    
-    
     for (int counter = bufferToFill.startSample; counter < bufferToFill.numSamples; counter++)
     {
-        float bass[2], mid[2], high[2];
-
-
-
-        for (int numChans = 0; numChans < bufferToFill.buffer->getNumChannels(); numChans++)
+        for (int chan = 0; chan < bufferToFill.buffer->getNumChannels(); chan++)
         {
-            float sample = bufferToFill.buffer->getSample(numChans, counter);
+            float sample = bufferToFill.buffer->getSample (chan, counter);
 
+            sample += eq[chan].filterSamples (sample, kBass, 0) * eq[chan].getFreqGain(0);
+            sample += eq[chan].filterSamples (sample, kMid, 0)  * eq[chan].getFreqGain(1);
+            sample += eq[chan].filterSamples (sample, kHigh, 0) * eq[chan].getFreqGain(2);
+            
+            sample = eq[chan].filterSamples (sample, kGlobalFilter, filterValue);
+            
+            sample += delay[chan].read (delayValue * 2) * delayValue;
+            delay[chan].write (sample);
+            
+            for (int counter = 0; counter < 16; counter++)
+            {
+                reverb[chan][counter].write (sample);
+            }
+            for (int counter = 0; counter < 16; counter++)
+            {
+                sample += eq[chan].filterSamples (reverb[chan][counter].read((reverbValue/4) * (counter + 1)) * ((reverbValue * 1.5)/(counter + 1)), kReverbFilter, 0);
+            }
 
+            //sample = ;
 
-            sampleLevel = sample;
-
-            currentSample = counter;
-
-
-            bass[numChans] = eq.filterSamples(sample, kBass);
-            mid[numChans] = eq.filterSamples(sample, kMid);
-            high[numChans] = eq.filterSamples(sample, kHigh);
-
-
-            bufferToFill.buffer->setSample(numChans, counter, (((sample +(bass[numChans] * eq.getFreqGain(0)) + (mid[numChans] * eq.getFreqGain(1)) + (high[numChans] * eq.getFreqGain(2))))));
-
-
-
-
-
-
+            bufferToFill.buffer->setSample (chan, counter, sample);
         }
     }
     

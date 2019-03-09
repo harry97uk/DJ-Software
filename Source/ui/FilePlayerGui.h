@@ -33,7 +33,7 @@ public:
     /**
      constructor - receives a reference to a FilePlayer object to control
      */
-    FilePlayerGui(FilePlayer& filePlayer_, EQ& eq_, bool right);
+    FilePlayerGui (FilePlayer& filePlayer_, bool right);
     
     /**
      Destructor 
@@ -89,7 +89,7 @@ public:
     
     void audioAnalysis();
     
-    
+    void setSectionPaint(Graphics& g, const Rectangle<int>& sectionBounds);
     
     //void mouseUp(const juce::MouseEvent &event) override;
     
@@ -98,7 +98,7 @@ public:
     float crossfadeFileGainValue();
 private:
     FilePlayer& filePlayer;
-    EQ& eq;
+    //EQ& eq;
     AudioThumbnailCache audioCache;
     ColouredAudioThumbnail audioWaveform;
     std::unique_ptr<BeatGrid> beatgrid;
@@ -115,7 +115,7 @@ private:
     Slider fileGain;
     Slider LFreq, MFreq, HFreq;
     Slider bpmSlider;
-    Slider filterSlider;
+    Slider filterSlider, delaySlider, reverbSlider;
     Label gain, bass, mid, high, playback;
     Label BPM, Key;
     Label time, totalTime;

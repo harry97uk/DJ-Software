@@ -13,7 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "EQ.hpp"
-#include "Effects.hpp"
+#include "Delay.hpp"
 #include "DJAudioSource.hpp"
 
 /**
@@ -42,8 +42,6 @@ public:
      */
     bool isPlaying () const;
     
-    EQ& getEQ() { return eq; }
-    
     /**
      Loads the specified file into the transport source
      @param newFile The file loaded in the FilePlayerGui FileBrowserComponent
@@ -67,6 +65,8 @@ public:
     /** @return the value of the amplitude in a range from 0 o 1*/
     float getGain();
     
+    void setEqFreqGain (float gain, int eqIndex);
+    
     //void setLooping(bool newState, float startPos, float secondsPerBeat);
     
     float getNextSample();
@@ -75,9 +75,7 @@ public:
     
     File& getFile() {return waveformFile;}
     
-    AudioTransportSource& getATS() {return audioTransportSource;}
-    
-    float getSampleLevel() {return sampleLevel;}
+    DJAudioSource& getATS() {return audioSource;}
     
     float getSampleRate() {return sRate;}
     
@@ -87,6 +85,10 @@ public:
     
     void setFilterValue (float filterVal);
     
+    void setDelayValue (float delayVal);
+    
+    void setReverbValue (float reverbVal);
+    
     //AudioSource
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
@@ -95,24 +97,24 @@ public:
 private:
     TimeSliceThread thread;//thread for the transport source
     AudioFormatReaderSource* currentAudioFileSource;    //reads audio from the file
-    AudioTransportSource audioTransportSource;	// this controls the playback of a positionable audio stream, handling the
+    std::unique_ptr<AudioFormatReader> reader;
     DJAudioSource audioSource;
     
                                             // starting/stopping and sample-rate conversion
     
-    EQ eq;
-    Effects effects;
+    EQ eq[2];
+    DelaySignal delay[2];
+    DelaySignal reverb[2][16];
     AudioFormatManager formatManager;
     CriticalSection loopLock;
     AudioSourceChannelInfo fullAudio;
-    std::unique_ptr<AudioFormatReader> reader;
+    
     int64 totalSamples;
     int samplesPerFrame;
     double sRate;
-    float currentSample;
-    float filterValue;
-    float sampleLevel;
+    float filterValue = 0, delayValue = 0, reverbValue = 0;
     double BpmRatio;
+    Random reverbDelay;
     File waveformFile;
     
     

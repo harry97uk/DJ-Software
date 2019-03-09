@@ -61,6 +61,8 @@ public:
     
     void paint (Graphics& g) override;
     
+    void lookAndFeelChanged() override;
+    
     //MenuBarEnums/Callbacks========================================================
     enum Menus
     {

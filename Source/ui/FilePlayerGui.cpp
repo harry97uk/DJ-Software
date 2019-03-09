@@ -10,9 +10,8 @@
 
 #include "FilePlayerGui.h"
 
-FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, EQ& eq_, bool right)
+FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, bool right)
  :  filePlayer (filePlayer_),
-    eq (eq_),
     audioCache(5),
     audioWaveform (512, filePlayer.getFormatManager(), audioCache)
 
@@ -28,11 +27,11 @@ FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, EQ& eq_, bool right)
     playButton.addListener(this);
     addAndMakeVisible(&playButton);
     
-    zoomPlusButton.setButtonText("Zoom +");
+    zoomPlusButton.setButtonText("Zoom+");
     zoomPlusButton.addListener(this);
     addAndMakeVisible(&zoomPlusButton);
     
-    zoomMinusButton.setButtonText("Zoom -");
+    zoomMinusButton.setButtonText("Zoom-");
     zoomMinusButton.addListener(this);
     addAndMakeVisible(&zoomMinusButton);
     
@@ -82,38 +81,58 @@ FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, EQ& eq_, bool right)
     
     fileGain.setRange(0, 1);
     fileGain.setValue(1);
+    fileGain.setTextBoxStyle(fileGain.NoTextBox, false, 0, 0);
     fileGain.addListener(this);
     addAndMakeVisible(&fileGain);
     
     LFreq.setSliderStyle(juce::Slider::Rotary);
     LFreq.setRange(-1, 1);
     LFreq.setValue(0);
+    LFreq.setTextBoxStyle(LFreq.NoTextBox, false, 0, 0);
     LFreq.addListener(this);
     addAndMakeVisible(&LFreq);
     
     MFreq.setSliderStyle(juce::Slider::Rotary);
     MFreq.setRange(-1, 1);
     MFreq.setValue(0);
+    MFreq.setTextBoxStyle(MFreq.NoTextBox, false, 0, 0);
     MFreq.addListener(this);
     addAndMakeVisible(&MFreq);
     
     HFreq.setSliderStyle(juce::Slider::Rotary);
     HFreq.setRange(-1, 1);
     HFreq.setValue(0);
+    HFreq.setTextBoxStyle(HFreq.NoTextBox, false, 0, 0);
     HFreq.addListener(this);
     addAndMakeVisible(&HFreq);
     
     bpmSlider.setSliderStyle(juce::Slider::LinearVertical);
-    bpmSlider.setRange(getBpm() - 20, getBpm() + 20);
-    bpmSlider.setValue(getBpm());
+    bpmSlider.setRange(-1, 1);
+    bpmSlider.setValue(0);
+    bpmSlider.setTextBoxStyle(bpmSlider.NoTextBox, false, 0, 0);
     bpmSlider.addListener(this);
     addAndMakeVisible(&bpmSlider);
     
     filterSlider.setSliderStyle(juce::Slider::Rotary);
-    filterSlider.setRange(-1, 1);
+    filterSlider.setRange(-0.98, 1);
     filterSlider.setValue(0);
+    filterSlider.setTextBoxStyle(filterSlider.NoTextBox, false, 0, 0);
     filterSlider.addListener(this);
     addAndMakeVisible(&filterSlider);
+    
+    delaySlider.setSliderStyle(juce::Slider::Rotary);
+    delaySlider.setRange(0, 0.8);
+    delaySlider.setValue(0);
+    delaySlider.setTextBoxStyle(delaySlider.NoTextBox, false, 0, 0);
+    delaySlider.addListener(this);
+    addAndMakeVisible(&delaySlider);
+    
+    reverbSlider.setSliderStyle(juce::Slider::Rotary);
+    reverbSlider.setRange(0, 0.1);
+    reverbSlider.setValue(0);
+    reverbSlider.setTextBoxStyle(reverbSlider.NoTextBox, false, 0, 0);
+    reverbSlider.addListener(this);
+    addAndMakeVisible(&reverbSlider);
     
     audioWaveform.addChangeListener(this);
     
@@ -130,59 +149,279 @@ void FilePlayerGui::resized()
 {
     if (Right == false)
     {
-        playButton.setBounds ((getWidth()/8)*3, getHeight()-80, 60, 40);
-        startLoopButton.setBounds((getWidth()/8), getHeight()-80, 60, 40);
-        endLoopButton.setBounds((getWidth()/8)*1.5, getHeight()-80, 60, 40);
-        zoomMinusButton.setBounds((getWidth()/8)*2, getHeight()-80, 60, 40);
-        zoomPlusButton.setBounds((getWidth()/8)*2.5, getHeight()-80, 60, 40);
-        syncButton.setBounds((getWidth()/4)*0.5, getHeight()-80, 60, 40);
+        //Play, Loop, Sync and Zoom Buttons
+        Rectangle<int> buttonControlBounds (50, getHeight() - 80, getWidth()/3, 40);
         
-        playbackPosition.setBounds(0, 20, getWidth()/2, 20);
-        fileGain.setBounds(0, 40, getWidth()/2, 20);
-        gain.setBounds(getWidth()/4, 30, getWidth()/4, 20);
-        playback.setBounds(getWidth()/4, 10, getWidth()/4, 20);
         
-        bass.setBounds(getWidth()/8, 170, getWidth()/2, 40);
-        mid.setBounds(getWidth()/8, 110, getWidth()/2, 40);
-        high.setBounds(getWidth()/8, 50, getWidth()/2, 40);
-        LFreq.setBounds(0, 180, getWidth()/2, 60);
-        MFreq.setBounds(0, 120, getWidth()/2, 60);
-        HFreq.setBounds(0, 60, getWidth()/2, 60);
+        playButton.setBounds (buttonControlBounds.getX()
+                              , buttonControlBounds.getY()
+                              , buttonControlBounds.getWidth()/5
+                              , buttonControlBounds.getHeight());
         
-        bpmSlider.setBounds(0, 250, getWidth()/3, 100);
-        filterSlider.setBounds(getWidth()/4, 250, getWidth()/3, 100);
-        BPM.setBounds(getWidth()/2 * 0.75, 50, getWidth()/4, 40);
-        Key.setBounds(getWidth()/2 * 0.75, 170, getWidth()/4, 40);
-        time.setBounds(getWidth()/2 * 0.75, 110, getWidth()/4, 40);
-        totalTime.setBounds(getWidth()/2 * 0.85, 110, getWidth()/4, 40);
+        startLoopButton.setBounds(buttonControlBounds.getX() + buttonControlBounds.getWidth()/5
+                                  , buttonControlBounds.getY()
+                                  , buttonControlBounds.getWidth()/5
+                                  , buttonControlBounds.getHeight());
+        
+        endLoopButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 2)/5
+                                , buttonControlBounds.getY()
+                                , buttonControlBounds.getWidth()/5
+                                , buttonControlBounds.getHeight());
+        
+        zoomMinusButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 3)/5
+                                  , buttonControlBounds.getY()
+                                  , buttonControlBounds.getWidth()/5
+                                  , buttonControlBounds.getHeight());
+        
+        zoomPlusButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 4)/5
+                                 , buttonControlBounds.getY()
+                                 , buttonControlBounds.getWidth()/5
+                                 , buttonControlBounds.getHeight());
+        
+        syncButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 5)/5
+                             , buttonControlBounds.getY()
+                             , buttonControlBounds.getWidth()/5
+                             , buttonControlBounds.getHeight());
+        
+        
+        //File Position and Gain Control
+        Rectangle<int> fileControlBounds (0, 0, getWidth()/2, 100);
+        
+        playbackPosition.setBounds(fileControlBounds.getX()
+                                   , fileControlBounds.getY() + 5
+                                   , fileControlBounds.getWidth()
+                                   , fileControlBounds.getHeight()/3);
+        
+        fileGain.setBounds(fileControlBounds.getX()
+                           , fileControlBounds.getY() + 25
+                           , fileControlBounds.getWidth()
+                           , fileControlBounds.getHeight()/3);
+        
+        gain.setBounds(fileControlBounds.getWidth()/2
+                       , fileControlBounds.getY() + 20
+                       , fileControlBounds.getWidth()/2
+                       , fileControlBounds.getHeight()/5);
+        
+        playback.setBounds(fileControlBounds.getWidth()/2
+                           , fileControlBounds.getY()
+                           , fileControlBounds.getWidth()/2
+                           , fileControlBounds.getHeight()/5);
+        
+        
+        //EQ control
+        Rectangle<int> eqBounds (getWidth()/6, 50, getWidth()/4, 150);
+        
+        bass.setBounds(eqBounds.getX() + eqBounds.getWidth()/5
+                       , eqBounds.getY() + (eqBounds.getHeight() * 2)/3
+                       , getWidth()/2
+                       , eqBounds.getHeight()/4);
+        
+        mid.setBounds(eqBounds.getX() + eqBounds.getWidth()/5
+                      , eqBounds.getY() + eqBounds.getHeight()/3
+                      , getWidth()/2
+                      , eqBounds.getHeight()/4);
+        
+        high.setBounds(eqBounds.getX() + eqBounds.getWidth()/5
+                       , eqBounds.getY()
+                       , getWidth()/2
+                       , eqBounds.getHeight()/4);
+        
+        LFreq.setBounds(eqBounds.getX()
+                        , eqBounds.getY() + (eqBounds.getHeight() * 2)/3
+                        , eqBounds.getWidth()
+                        , eqBounds.getHeight()/3);
+        
+        MFreq.setBounds(eqBounds.getX()
+                        , eqBounds.getY() + eqBounds.getHeight()/3
+                        , eqBounds.getWidth()
+                        , eqBounds.getHeight()/3);
+        
+        HFreq.setBounds(eqBounds.getX()
+                        , eqBounds.getY()
+                        , eqBounds.getWidth()
+                        , eqBounds.getHeight()/3);
+        
+        
+        //BPM, Key and Time Labels
+        Rectangle<int> informationLabelBounds (getWidth()/3 + 40, 50, getWidth()/8, 150);
+        
+        BPM.setBounds(informationLabelBounds.getX()
+                      , informationLabelBounds.getY()
+                      , informationLabelBounds.getWidth()
+                      , informationLabelBounds.getHeight()/4);
+        
+        Key.setBounds(informationLabelBounds.getX()
+                      , informationLabelBounds.getY() + informationLabelBounds.getHeight()/3
+                      , informationLabelBounds.getWidth()
+                      , informationLabelBounds.getHeight()/4);
+        
+        time.setBounds(informationLabelBounds.getX()
+                       , informationLabelBounds.getY() + (informationLabelBounds.getHeight() * 2)/3
+                       , informationLabelBounds.getWidth()
+                       , informationLabelBounds.getHeight()/4);
+        
+        totalTime.setBounds(informationLabelBounds.getX() + 40
+                            , informationLabelBounds.getY() + (informationLabelBounds.getHeight() * 2)/3
+                            , informationLabelBounds.getWidth()
+                            , informationLabelBounds.getHeight()/4);
+        
+        
+        bpmSlider.setBounds(0, 50, getWidth()/8, 150);
+        
+        //Effect Sliders
+        Rectangle<int> effectsBounds (0, 250, getWidth()/2, 70);
+        
+        filterSlider.setBounds(effectsBounds.getX()
+                               , effectsBounds.getY()
+                               , effectsBounds.getWidth()/3
+                               , effectsBounds.getHeight());
+        
+        delaySlider.setBounds(effectsBounds.getX() + effectsBounds.getWidth()/3
+                               , effectsBounds.getY()
+                               , effectsBounds.getWidth()/3
+                               , effectsBounds.getHeight());
+        
+        reverbSlider.setBounds(effectsBounds.getX() + (effectsBounds.getWidth() * 2)/3
+                              , effectsBounds.getY()
+                              , effectsBounds.getWidth()/3
+                              , effectsBounds.getHeight());
+        
     }
     else if (Right == true)
     {
-        playButton.setBounds (((getWidth()/8)*3) + getWidth()/2, getHeight()-80, 60, 40);
-        startLoopButton.setBounds((getWidth()/8) + getWidth()/2, getHeight()-80, 60, 40);
-        endLoopButton.setBounds(((getWidth()/8)*1.5) + getWidth()/2, getHeight()-80, 60, 40);
-        zoomMinusButton.setBounds(((getWidth()/8)*2) + getWidth()/2, getHeight()-80, 60, 40);
-        zoomPlusButton.setBounds(((getWidth()/8)*2.5) + getWidth()/2, getHeight()-80, 60, 40);
-        syncButton.setBounds(((getWidth()/8)*0.5) + getWidth()/2, getHeight()-80, 60, 40);
+        //Play, Loop, Sync and Zoom Buttons
+        Rectangle<int> buttonControlBounds (50 + getWidth()/2, getHeight() - 80, getWidth()/3, 40);
         
-        playbackPosition.setBounds(0 + getWidth()/2, 20, getWidth()/2, 20);
-        fileGain.setBounds(0 + getWidth()/2, 40, getWidth()/2, 20);
-        gain.setBounds(getWidth()/4 + getWidth()/2, 30, getWidth()/4, 20);
-        playback.setBounds(getWidth()/4 + getWidth()/2, 10, getWidth()/4, 20);
+        playButton.setBounds (buttonControlBounds.getX()
+                              , buttonControlBounds.getY()
+                              , buttonControlBounds.getWidth()/5
+                              , buttonControlBounds.getHeight());
         
-        bass.setBounds(getWidth()/8 + getWidth()/2, 170, getWidth()/2, 40);
-        mid.setBounds(getWidth()/8 + getWidth()/2, 110, getWidth()/2, 40);
-        high.setBounds(getWidth()/8 + getWidth()/2, 50, getWidth()/2, 40);
-        LFreq.setBounds(0 + getWidth()/2, 180, getWidth()/2, 60);
-        MFreq.setBounds(0 + getWidth()/2, 120, getWidth()/2, 60);
-        HFreq.setBounds(0 + getWidth()/2, 60, getWidth()/2, 60);
+        startLoopButton.setBounds(buttonControlBounds.getX() + buttonControlBounds.getWidth()/5
+                                  , buttonControlBounds.getY()
+                                  , buttonControlBounds.getWidth()/5
+                                  , buttonControlBounds.getHeight());
         
-        bpmSlider.setBounds(0 + getWidth()/2, 250, getWidth()/3, 100);
-        filterSlider.setBounds(getWidth()/4 + getWidth()/2, 250, getWidth()/3, 100);
-        BPM.setBounds((getWidth()/2 * 0.75) + getWidth()/2, 50, getWidth()/4, 40);
-        Key.setBounds((getWidth()/2 * 0.75)+ getWidth()/2, 170 , getWidth()/4, 40);
-        time.setBounds((getWidth()/2 * 0.75)+ getWidth()/2, 110, getWidth()/4, 40);
-        totalTime.setBounds((getWidth()/2 * 0.85) + getWidth()/2, 110, getWidth()/4, 40);
+        endLoopButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 2)/5
+                                , buttonControlBounds.getY()
+                                , buttonControlBounds.getWidth()/5
+                                , buttonControlBounds.getHeight());
+        
+        zoomMinusButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 3)/5
+                                  , buttonControlBounds.getY()
+                                  , buttonControlBounds.getWidth()/5
+                                  , buttonControlBounds.getHeight());
+        
+        zoomPlusButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 4)/5
+                                 , buttonControlBounds.getY()
+                                 , buttonControlBounds.getWidth()/5
+                                 , buttonControlBounds.getHeight());
+        
+        syncButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 5)/5
+                             , buttonControlBounds.getY()
+                             , buttonControlBounds.getWidth()/5
+                             , buttonControlBounds.getHeight());
+        
+        
+        //File Position and Gain Control
+        Rectangle<int> fileControlBounds (0 + getWidth()/2, 0, getWidth()/2, 100);
+        
+        playbackPosition.setBounds(fileControlBounds.getX()
+                                   , fileControlBounds.getY() + 5
+                                   , fileControlBounds.getWidth()
+                                   , fileControlBounds.getHeight()/3);
+        
+        fileGain.setBounds(fileControlBounds.getX()
+                           , fileControlBounds.getY() + 25
+                           , fileControlBounds.getWidth()
+                           , fileControlBounds.getHeight()/3);
+        
+        gain.setBounds(fileControlBounds.getX() + fileControlBounds.getWidth()/2
+                       , fileControlBounds.getY() + 20
+                       , fileControlBounds.getWidth()/2
+                       , fileControlBounds.getHeight()/5);
+        
+        playback.setBounds(fileControlBounds.getX() + fileControlBounds.getWidth()/2
+                           , fileControlBounds.getY()
+                           , fileControlBounds.getWidth()/2
+                           , fileControlBounds.getHeight()/5);
+        
+        //EQ Control
+        Rectangle<int> eqBounds (getWidth()/6 + getWidth()/2, 50, getWidth()/4, 150);
+        
+        bass.setBounds(eqBounds.getX() + eqBounds.getWidth()/5
+                       , eqBounds.getY() + (eqBounds.getHeight() * 2)/3
+                       , getWidth()/2
+                       , eqBounds.getHeight()/4);
+        
+        mid.setBounds(eqBounds.getX() + eqBounds.getWidth()/5
+                      , eqBounds.getY() + eqBounds.getHeight()/3
+                      , getWidth()/2
+                      , eqBounds.getHeight()/4);
+        
+        high.setBounds(eqBounds.getX() + eqBounds.getWidth()/5
+                       , eqBounds.getY()
+                       , getWidth()/2
+                       , eqBounds.getHeight()/4);
+        
+        LFreq.setBounds(eqBounds.getX()
+                        , eqBounds.getY() + (eqBounds.getHeight() * 2)/3
+                        , eqBounds.getWidth()
+                        , eqBounds.getHeight()/3);
+        
+        MFreq.setBounds(eqBounds.getX()
+                        , eqBounds.getY() + eqBounds.getHeight()/3
+                        , eqBounds.getWidth()
+                        , eqBounds.getHeight()/3);
+        
+        HFreq.setBounds(eqBounds.getX()
+                        , eqBounds.getY()
+                        , eqBounds.getWidth()
+                        , eqBounds.getHeight()/3);
+        
+        
+        //BPM, Key and Time Labels
+        Rectangle<int> informationLabelBounds ((getWidth()/3 + 40) + getWidth()/2, 50, getWidth()/8, 150);
+        
+        BPM.setBounds(informationLabelBounds.getX()
+                      , informationLabelBounds.getY()
+                      , informationLabelBounds.getWidth()
+                      , informationLabelBounds.getHeight()/4);
+        
+        Key.setBounds(informationLabelBounds.getX()
+                      , informationLabelBounds.getY() + informationLabelBounds.getHeight()/3
+                      , informationLabelBounds.getWidth()
+                      , informationLabelBounds.getHeight()/4);
+        
+        time.setBounds(informationLabelBounds.getX()
+                       , informationLabelBounds.getY() + (informationLabelBounds.getHeight() * 2)/3
+                       , informationLabelBounds.getWidth()
+                       , informationLabelBounds.getHeight()/4);
+        
+        totalTime.setBounds(informationLabelBounds.getX() + 40
+                            , informationLabelBounds.getY() + (informationLabelBounds.getHeight() * 2)/3
+                            , informationLabelBounds.getWidth()
+                            , informationLabelBounds.getHeight()/4);
+        
+        bpmSlider.setBounds(0 + getWidth()/2, 50, getWidth()/8, 150);
+        
+        //Effect Sliders
+        Rectangle<int> effectsBounds (0 + getWidth()/2, 250, getWidth()/2, 70);
+        
+        filterSlider.setBounds(effectsBounds.getX()
+                               , effectsBounds.getY()
+                               , effectsBounds.getWidth()/3
+                               , effectsBounds.getHeight());
+        
+        delaySlider.setBounds(effectsBounds.getX() + effectsBounds.getWidth()/3
+                              , effectsBounds.getY()
+                              , effectsBounds.getWidth()/3
+                              , effectsBounds.getHeight());
+        
+        reverbSlider.setBounds(effectsBounds.getX() + (effectsBounds.getWidth() * 2)/3
+                               , effectsBounds.getY()
+                               , effectsBounds.getWidth()/3
+                               , effectsBounds.getHeight());
     }
     
     
@@ -221,10 +460,7 @@ void FilePlayerGui::buttonClicked(Button* button)
             filePlayer.setBpmRatio(BpmRatio);
             audioAnalysis();
             waveformRatio = BpmRatio;
-            
-            
-            
-            
+ 
         }
         else if (Master == true)
         {
@@ -358,14 +594,50 @@ void FilePlayerGui::paint(Graphics& g)
 
 void FilePlayerGui::paintIfNoFileLoaded(Graphics& g, const Rectangle<int>& thumbnailBounds)
 {
-    g.setColour (Colours::darkgrey);
+    g.setColour (Colours::black);
     g.fillRect (thumbnailBounds);
+    g.setColour(Colours::lightslategrey);
+    
+    g.drawHorizontalLine(thumbnailBounds.getY()
+                         , thumbnailBounds.getX()
+                         , thumbnailBounds.getX() + thumbnailBounds.getWidth());
+    
+    g.drawHorizontalLine(thumbnailBounds.getY() + thumbnailBounds.getHeight()
+                         , thumbnailBounds.getX()
+                         , thumbnailBounds.getX() + thumbnailBounds.getWidth());
+    
+    g.drawVerticalLine(thumbnailBounds.getX()
+                       , thumbnailBounds.getY()
+                       , thumbnailBounds.getY() + thumbnailBounds.getHeight());
+    
+    g.drawVerticalLine(thumbnailBounds.getX() + thumbnailBounds.getWidth()
+                       , thumbnailBounds.getY()
+                       , thumbnailBounds.getY() + thumbnailBounds.getHeight());
+    
     g.setColour (Colours::white);
     g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
 }
 
 void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbnailBounds)
 {
+    g.setColour(Colours::lightslategrey);
+    
+    g.drawHorizontalLine(thumbnailBounds.getY()
+                         , thumbnailBounds.getX()
+                         , thumbnailBounds.getX() + thumbnailBounds.getWidth());
+    
+    g.drawHorizontalLine(thumbnailBounds.getY() + thumbnailBounds.getHeight()
+                         , thumbnailBounds.getX()
+                         , thumbnailBounds.getX() + thumbnailBounds.getWidth());
+    
+    g.drawVerticalLine(thumbnailBounds.getX()
+                       , thumbnailBounds.getY()
+                       , thumbnailBounds.getY() + thumbnailBounds.getHeight());
+    
+    g.drawVerticalLine(thumbnailBounds.getX() + thumbnailBounds.getWidth()
+                       , thumbnailBounds.getY()
+                       , thumbnailBounds.getY() + thumbnailBounds.getHeight());
+    
     g.setColour (Colours::black);
     g.fillRect (thumbnailBounds);
     
@@ -435,15 +707,20 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
     
 }
 
+void FilePlayerGui::setSectionPaint(juce::Graphics &g, const Rectangle<int> &sectionBounds)
+{
+    
+}
+
 void FilePlayerGui::changeListenerCallback(ChangeBroadcaster* source)
 {
-    if (source == &filePlayer.getATS())  transportSourceChanged();
+    
     if (source == &audioWaveform)        thumbnailChanged();
 }
 
 void FilePlayerGui::transportSourceChanged()
 {
-    if (filePlayer.getATS().isPlaying())
+    if (filePlayer.getATS().IsPlaying())
         filePlayer.setPlaying(true);
     else
         filePlayer.setPlaying(false);
@@ -486,17 +763,32 @@ void FilePlayerGui::sliderValueChanged(Slider* slider)
     }
     else if (slider == &LFreq)
     {
-        eq.setFreqGain(LFreq.getValue(), 0);
+        filePlayer.setEqFreqGain (LFreq.getValue(), 0);
     }
     else if (slider == &MFreq)
     {
-        eq.setFreqGain(MFreq.getValue(), 1);
+        filePlayer.setEqFreqGain (MFreq.getValue(), 1);
     }
     else if (slider == &HFreq)
     {
-        eq.setFreqGain(HFreq.getValue(), 2);
+        filePlayer.setEqFreqGain (HFreq.getValue(), 2);
     }
-
+    else if (slider == &filterSlider)
+    {
+        filePlayer.setFilterValue(filterSlider.getValue());
+    }
+    else if (slider == &delaySlider)
+    {
+        filePlayer.setDelayValue(delaySlider.getValue());
+    }
+    else if (slider == &reverbSlider)
+    {
+        filePlayer.setReverbValue(reverbSlider.getValue());
+    }
+    else if (slider == &bpmSlider)
+    {
+        filePlayer.setBpmRatio(1 + (bpmSlider.getValue()/4));
+    }
 
 }
 

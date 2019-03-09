@@ -22,10 +22,19 @@ void DJAudioSource::SetSource(AudioFormatReader *formatReader, bool deleteWhenFi
 {
     const ScopedLock lock(criticalSection);
     
-    
+   
     
     Reset();
     reader.set(formatReader, deleteWhenFinished);
+    
+        bufferSize = lengthInSamples * (2 * fabs(pitch));
+        buffer.setSize(numChannels, bufferSize);
+        lengthInSamples = formatReader->lengthInSamples;
+        numChannels = formatReader->numChannels;
+    
+    
+    reader->metadataValues.getDescription();
+    
 }
 
 AudioFormatReader *DJAudioSource::GetSource() const
@@ -45,6 +54,10 @@ void DJAudioSource::SetPitch(double newPitch)
     const ScopedLock lock(criticalSection);
     
     pitch = newPitch;
+        bufferSize = lengthInSamples * (2 * fabs(pitch));
+        buffer.setSize(numChannels, bufferSize);
+    
+    
     
 }
 
@@ -89,10 +102,8 @@ void DJAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     if (PlayheadIsValid() && IsPlaying())
     {
         const bool reverse = pitch < 0.f;
-        const int  tempSampleSize = GetLengthSamples() * (2 * fabs(pitch));
-        bufferSize = tempSampleSize;
         
-        buffer.setSize(bufferToFill.buffer->getNumChannels(), tempSampleSize);
+        
         
         reader->read(  &buffer
                      , 0
@@ -100,7 +111,7 @@ void DJAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
                      , int64(playhead) - (reverse ? bufferToFill.numSamples : 0)
                      , true, true);
         
-        buffer.applyGain(gain);
+        buffer.applyGainRamp(bufferToFill.startSample, bufferToFill.numSamples, lastGain, gain);
         
         if (reverse)
             buffer.reverse(0, bufferToFill.numSamples);
@@ -109,11 +120,15 @@ void DJAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
                                 , buffer.getReadPointer(0)
                                 , bufferToFill.buffer->getWritePointer(0)
                                 , bufferToFill.numSamples);
-        
+
         interpolator[1].process(  fabs(pitch)
                                 , buffer.getReadPointer(1)
                                 , bufferToFill.buffer->getWritePointer(1)
                                 , bufferToFill.numSamples);
+        
+        
+        
+        
     }
     else
     {
@@ -121,6 +136,7 @@ void DJAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     }
     
     IncrementPlayhead(bufferToFill.numSamples);
+    lastGain = gain;
 }
 
 void DJAudioSource::IncrementPlayhead(int numSamples)

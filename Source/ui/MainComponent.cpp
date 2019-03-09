@@ -11,8 +11,8 @@
 
 //==============================================================================
 MainComponent::MainComponent (Audio& audio_) : audio (audio_),
-filePlayerGui(audio.getFilePlayer(0), audio.getFilePlayer(0).getEQ(), false),
-filePlayerGui1(audio.getFilePlayer(1), audio.getFilePlayer(1).getEQ(), true),
+filePlayerGui(audio.getFilePlayer(0), false),
+filePlayerGui1(audio.getFilePlayer(1), true),
 sourcePlayer(new AudioSourcePlayer),
 readerSource(nullptr),
 formatManager(new AudioFormatManager),
@@ -56,6 +56,7 @@ audioDeviceManager(new AudioDeviceManager)
     
     fileChooser = new FileBrowserComponent(FileBrowserComponent::FileChooserFlags::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::canSelectDirectories | FileBrowserComponent::FileChooserFlags::useTreeView, File("/Users/harrygardiner/Music"), wavFiles.get(), nullptr);
     
+    
     fileChooser->addListener(this);
     addAndMakeVisible(fileChooser);
     
@@ -79,11 +80,30 @@ void MainComponent::resized()
     filePlayerGui1.setBounds (getWidth()/3, 0, getWidth() -  getWidth()/3, getHeight()-20);
     masterGain.setBounds(0, getHeight()-20, getWidth(), 20);
     filePan.setBounds(0, getHeight()-40, getWidth(), 20);
-    fileChooser->setBounds(0, 350, getWidth()/3, 200);
-    loadA.setBounds((getWidth()/2) - 20, 420, 50, 50);
-    loadB.setBounds((getWidth()/2) + 20, 420, 50, 50);
-    masterA.setBounds((getWidth()/2) - 60, 420, 50, 50);
-    masterB.setBounds((getWidth()/2) + 60, 420, 50, 50);
+    fileChooser->setBounds(0, 350, getWidth(), 200);
+    
+    //Load & Master Buttons
+    Rectangle<int> loadMasterBounds (getWidth()/3, 300, getWidth()/3, 50);
+    
+    loadA.setBounds(loadMasterBounds.getX()
+                    , loadMasterBounds.getY()
+                    , loadMasterBounds.getWidth()/4
+                    , loadMasterBounds.getHeight());
+    
+    loadB.setBounds(loadMasterBounds.getX() + (loadMasterBounds.getWidth() * 3)/4
+                    , loadMasterBounds.getY()
+                    , loadMasterBounds.getWidth()/4
+                    , loadMasterBounds.getHeight());
+    
+    masterA.setBounds(loadMasterBounds.getX() + (loadMasterBounds.getWidth())/4
+                      , loadMasterBounds.getY()
+                      , loadMasterBounds.getWidth()/4
+                      , loadMasterBounds.getHeight());
+    
+    masterB.setBounds(loadMasterBounds.getX() + (loadMasterBounds.getWidth() * 2)/4
+                      , loadMasterBounds.getY()
+                      , loadMasterBounds.getWidth()/4
+                      , loadMasterBounds.getHeight());
     
 }
 
@@ -253,8 +273,12 @@ void MainComponent::browserRootChanged(const File& newroot)
 
 void MainComponent::paint(juce::Graphics &g)
 {
-    g.setColour(Colours::red);
-    g.drawLine(getWidth()/2, 65, getWidth()/2, 265);
+   
+}
+
+void MainComponent::lookAndFeelChanged()
+{
+    
 }
 
 //MenuBarCallbacks==============================================================
@@ -268,7 +292,7 @@ PopupMenu MainComponent::getMenuForIndex (int topLevelMenuIndex, const String& m
 {
     PopupMenu menu;
     if (topLevelMenuIndex == 0)
-        menu.addItem(AudioPrefs, "Audio Prefrences", true, false);
+        menu.addItem(AudioPrefs, "Audio Preferences", true, false);
     return menu;
 }
 
