@@ -33,7 +33,7 @@ public:
     /**Reads the samples and filters them based on the frequency range picked
      @param sample The incoming sample
      @param type The frequency range to filter, this is what the enumeration above is in refernce to*/
-    float filterSamples(float sample, UInt16 type, float filterEffectSliderValue);
+    float filterSamples(float sample, UInt16 type, float startFilterEffectSliderValue, float endFilterEffectSliderValue, int numSamples);
     
     
     /** @param freqGainNum Selects the specific frequency range

@@ -12,15 +12,14 @@
 
 Audio::Audio()
 {
-    
-    
     audioDeviceManager.initialiseWithDefaultDevices (2, 2);//2 inputs, 2 outputs
-    
+
     //load the filePlayer into the audio source
     audioSourcePlayer.setSource(&mixerAudioSource);
     
     
     audioDeviceManager.addMidiInputCallback ("", this);
+    audioDeviceManager.setMidiInputEnabled("Party Mix", true);
     audioDeviceManager.addAudioCallback (this);
     
     mixerAudioSource.addInputSource(&filePlayer[0], false);
@@ -43,6 +42,24 @@ Audio::~Audio()
 void Audio::handleIncomingMidiMessage (MidiInput* source, const MidiMessage& message)
 {
     //All MIDI inputs arrive here
+//    String messageDescription = message.getDescription();
+//    bool isController = message.isController();
+//    int noteNum = message.getNoteNumber();
+//    DBG(messageDescription);
+//    if (isController == true)
+//    {
+//        
+//    }
+//    else if (isController == false)
+//    {
+//        if (noteNum == 0)
+//        {
+//            
+//        }
+//    }
+    //midiMapper.handleIncomingMidiMessage(source, message);
+    
+
 }
 
 void Audio::audioDeviceIOCallback (const float** inputChannelData,

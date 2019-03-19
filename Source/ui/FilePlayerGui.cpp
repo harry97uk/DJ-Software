@@ -12,7 +12,7 @@
 
 FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, bool right)
  :  filePlayer (filePlayer_),
-    audioCache(5),
+    audioCache(50),
     audioWaveform (512, filePlayer.getFormatManager(), audioCache)
 
 {
@@ -62,13 +62,13 @@ FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, bool right)
     playback.setText("Playback Position", dontSendNotification);
     addAndMakeVisible(&playback);
     
-    startLoopButton.setButtonText("START LOOP");
-    startLoopButton.addListener(this);
-    addAndMakeVisible(&startLoopButton);
+   fourBarLoopButton.setButtonText("4 LOOP");
+    fourBarLoopButton.addListener(this);
+    addAndMakeVisible(&fourBarLoopButton);
     
-    endLoopButton.setButtonText("END LOOP");
-    endLoopButton.addListener(this);
-    addAndMakeVisible(&endLoopButton);
+    eightBarLoopButton.setButtonText("8 LOOP");
+    eightBarLoopButton.addListener(this);
+    addAndMakeVisible(&eightBarLoopButton);
     
     syncButton.setButtonText("SYNC");
     syncButton.addListener(this);
@@ -141,7 +141,7 @@ FilePlayerGui::FilePlayerGui (FilePlayer& filePlayer_, bool right)
 
 FilePlayerGui::~FilePlayerGui()
 {
-    
+    audioCache.clear();
 }
 
 //Component
@@ -150,7 +150,7 @@ void FilePlayerGui::resized()
     if (Right == false)
     {
         //Play, Loop, Sync and Zoom Buttons
-        Rectangle<int> buttonControlBounds (50, getHeight() - 80, getWidth()/3, 40);
+        Rectangle<int> buttonControlBounds (50, getHeight() - 320, getWidth()/3, 40);
         
         
         playButton.setBounds (buttonControlBounds.getX()
@@ -158,12 +158,12 @@ void FilePlayerGui::resized()
                               , buttonControlBounds.getWidth()/5
                               , buttonControlBounds.getHeight());
         
-        startLoopButton.setBounds(buttonControlBounds.getX() + buttonControlBounds.getWidth()/5
+        fourBarLoopButton.setBounds(buttonControlBounds.getX() + buttonControlBounds.getWidth()/5
                                   , buttonControlBounds.getY()
                                   , buttonControlBounds.getWidth()/5
                                   , buttonControlBounds.getHeight());
         
-        endLoopButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 2)/5
+        eightBarLoopButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 2)/5
                                 , buttonControlBounds.getY()
                                 , buttonControlBounds.getWidth()/5
                                 , buttonControlBounds.getHeight());
@@ -290,19 +290,19 @@ void FilePlayerGui::resized()
     else if (Right == true)
     {
         //Play, Loop, Sync and Zoom Buttons
-        Rectangle<int> buttonControlBounds (50 + getWidth()/2, getHeight() - 80, getWidth()/3, 40);
+        Rectangle<int> buttonControlBounds (50 + getWidth()/2, getHeight() - 320, getWidth()/3, 40);
         
         playButton.setBounds (buttonControlBounds.getX()
                               , buttonControlBounds.getY()
                               , buttonControlBounds.getWidth()/5
                               , buttonControlBounds.getHeight());
         
-        startLoopButton.setBounds(buttonControlBounds.getX() + buttonControlBounds.getWidth()/5
+        fourBarLoopButton.setBounds(buttonControlBounds.getX() + buttonControlBounds.getWidth()/5
                                   , buttonControlBounds.getY()
                                   , buttonControlBounds.getWidth()/5
                                   , buttonControlBounds.getHeight());
         
-        endLoopButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 2)/5
+        eightBarLoopButton.setBounds(buttonControlBounds.getX() + (buttonControlBounds.getWidth() * 2)/5
                                 , buttonControlBounds.getY()
                                 , buttonControlBounds.getWidth()/5
                                 , buttonControlBounds.getHeight());
@@ -430,6 +430,7 @@ void FilePlayerGui::resized()
 //Button Listener
 void FilePlayerGui::buttonClicked(Button* button)
 {
+    
     if (button == &playButton)
     {
         
@@ -460,6 +461,7 @@ void FilePlayerGui::buttonClicked(Button* button)
             filePlayer.setBpmRatio(BpmRatio);
             audioAnalysis();
             waveformRatio = BpmRatio;
+            repaint();
  
         }
         else if (Master == true)
@@ -468,18 +470,37 @@ void FilePlayerGui::buttonClicked(Button* button)
         }
        
     }
-//    if (button == &startLoopButton)
-//    {
-//
-//        loop = true;
-//        filePlayer.setLooping(loop.get(), filePlayer.getLengthInSeconds() * filePlayer.getPosition(), secondsPerBeat);
-//
-//    }
-//    if (button == &endLoopButton)
-//    {
-//        loop = false;
-//        filePlayer.setLooping(loop.get(), 0, 0);
-//    }
+    if (button == &fourBarLoopButton)
+    {
+        if (loop.get() == true && filePlayer.getLoopBars() == 8)
+        {
+            filePlayer.setLooping(true, 60/getBpm(), 4);
+        }
+        else
+        {
+        loopStart = filePlayer.getCurrentSample();
+        secondStart = loopStart/filePlayer.getSampleRate();
+        filePlayer.setLoopStart(loopStart);
+        loop = !loop.get();
+        filePlayer.setLooping(loop.get(), 60/getBpm(), 4);
+        }
+  
+    }
+    if (button == &eightBarLoopButton)
+    {
+        if (loop.get() == true && filePlayer.getLoopBars() == 4)
+        {
+            filePlayer.setLooping(true, 60/getBpm(), 8);
+        }
+        else
+        {
+        loopStart = filePlayer.getCurrentSample();
+        secondStart = loopStart/filePlayer.getSampleRate();
+        filePlayer.setLoopStart(loopStart);
+        loop = !loop.get();
+        filePlayer.setLooping(loop.get(), 60/getBpm(), 8);
+        }
+    }
 }
 
 //FilenameComponentListener
@@ -494,7 +515,9 @@ void FilePlayerGui::loadFile(File audioFile)
            
                 
                 filePlayer.loadFile(audioFile);
+                totalTimeInSeconds = filePlayer.getLengthInSeconds();
                 audioWaveform.setSource (new FileInputSource (audioFile));
+                audioCache.storeThumb(audioWaveform, audioWaveform.getHashCode());
             
                 playButton.setButtonText("PLAY");
                 waveformRatio = 1;
@@ -560,6 +583,9 @@ void FilePlayerGui::paint(Graphics& g)
         Rectangle<int> thumbnailBounds (getWidth()/2, 65, getWidth()/2, 100);
         Rectangle<int> thumbnail2Bounds (0, 210, getWidth()/2, 30);
         
+        g.setColour(Colours::red);
+        g.drawLine((getWidth()/2 + getWidth()/4), 55, (getWidth()/2 + getWidth()/4), 165);
+        
         if (audioWaveform.getNumChannels() == 0)
         {
             paintIfNoFileLoaded (g, thumbnailBounds);
@@ -575,6 +601,9 @@ void FilePlayerGui::paint(Graphics& g)
     {
         Rectangle<int> thumbnailBounds (0, 165, getWidth()/2, 100);
         Rectangle<int> thumbnail2Bounds (0 + getWidth()/2, 210, getWidth()/2, 30);
+        
+        g.setColour(Colours::red);
+        g.drawLine(thumbnailBounds.getWidth()/2, 165, thumbnailBounds.getWidth()/2, 275);
         
         if (audioWaveform.getNumChannels() == 0)
         {
@@ -640,14 +669,27 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
     
     g.setColour (Colours::black);
     g.fillRect (thumbnailBounds);
+    if (loop.get() == true && thumbnailBounds.getHeight() != 30)
+    {
+        g.setColour(Colours::ghostwhite);
+        Rectangle<int> loopBounds (((secondStart/zoomNo) - (timeInSeconds/zoomNo)) * thumbnailBounds.getWidth() + (thumbnailBounds.getX() + thumbnailBounds.getWidth()/2)
+                                   , thumbnailBounds.getY()
+                                   ,((filePlayer.getEndBounds()/zoomNo) * (thumbnailBounds.getWidth())) - ((secondStart/zoomNo) * (thumbnailBounds.getWidth())), thumbnailBounds.getHeight());
+        g.fillRect(loopBounds);
+    }
     
-    beatgrid.reset(new BeatGrid(getBpm(), filePlayer.getSampleRate(), getBGS()*(filePlayer.getSampleRate())));
-    markers = beatgrid->FindBeats(0, totalTimeInSeconds * (filePlayer.getSampleRate()));
+    
+    
+                               
+    
+    beatgrid.reset(new BeatGrid(getBpm(), filePlayer.getSampleRate()/BpmRatio, getBGS()*(filePlayer.getSampleRate()/BpmRatio)));
+    markers = beatgrid->FindBeats(0, totalTimeInSeconds * (filePlayer.getSampleRate()/BpmRatio));
     for (int counter = 0; counter < markers.size(); counter++)
     {
+                    
         if (markers[counter].downBeat == true)
         {
-            syncCounter = markers[counter].seconds;
+            
             if (thumbnailBounds.getY() == 65 && markers[counter].seconds > timeInSeconds)
             {
                 g.setColour(Colours::yellow);
@@ -664,6 +706,7 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
         }
         else if (markers[counter].downBeat == false)
         {
+            
             if (thumbnailBounds.getY() == 65 && markers[counter].seconds > timeInSeconds)
             {
                 g.setColour(Colours::darkgrey);
@@ -696,8 +739,8 @@ void FilePlayerGui::paintIfFileLoaded(Graphics& g, const Rectangle<int>& thumbna
         
             audioWaveform.drawColouredChannel(g,
                                               thumbnailBounds,
-                                              timeInSeconds,                                    // start time
-                                              (timeInSeconds) + (zoomNo),
+                                              timeInSeconds - (zoomNo/2),                                    // start time
+                                              (timeInSeconds) + (zoomNo/2),
                                               1,                                        // end time
                                               audioWaveform.getApproximatePeak() * 0.8f);
         
@@ -714,7 +757,6 @@ void FilePlayerGui::setSectionPaint(juce::Graphics &g, const Rectangle<int> &sec
 
 void FilePlayerGui::changeListenerCallback(ChangeBroadcaster* source)
 {
-    
     if (source == &audioWaveform)        thumbnailChanged();
 }
 
@@ -779,7 +821,7 @@ void FilePlayerGui::sliderValueChanged(Slider* slider)
     }
     else if (slider == &delaySlider)
     {
-        filePlayer.setDelayValue(delaySlider.getValue());
+        filePlayer.setDelayValue(delaySlider.getValue() * (60/getBpm()));
     }
     else if (slider == &reverbSlider)
     {
@@ -788,6 +830,9 @@ void FilePlayerGui::sliderValueChanged(Slider* slider)
     else if (slider == &bpmSlider)
     {
         filePlayer.setBpmRatio(1 + (bpmSlider.getValue()/4));
+        setBpmRatio(1 + (bpmSlider.getValue()/4));
+        setBPM(getOBpm() * BpmRatio);
+        audioAnalysis();
     }
 
 }
@@ -797,15 +842,30 @@ float FilePlayerGui::crossfadeFileGainValue()
     return fileGain.getValue();
 }
 
+void FilePlayerGui::midiAction(int midiNum)
+{
+    if (midiNum == 0)
+    {
+        buttonClicked(&playButton);
+    }
+}
+
 void FilePlayerGui::timerCallback()
 {
     if (filePlayer.isPlaying() == true)
     {
         startTimer(10);
         
+        if (loop.get() == true)
+        {
+            repaint();
+        }
+            
+        
         timeInSeconds = filePlayer.getLengthInSeconds() * filePlayer.getPosition();
         
         totalTimeInSeconds = filePlayer.getLengthInSeconds();
+    
         int time1 = (int)timeInSeconds;
         int time2 = (int)totalTimeInSeconds;
         

@@ -15,7 +15,7 @@ EQ::EQ() : filter{44100, 44100, 44100, 44100, 44100}
     filter[0].FilterConfig(kLPF, 250, 0);
     filter[1].FilterConfig(kBPF, 1125, 1750);
     filter[2].FilterConfig(kHPF, 2000, 0);
-    filter[4].FilterConfig(kLPF, 4000, 0);
+    filter[4].FilterConfig(kBPF, 2000, 3800);
 
     
     for(int counter = 0; counter < 3; counter++)
@@ -48,7 +48,7 @@ float EQ::getFreqGain(int freqGainNum)
 }
 
 
-float EQ::filterSamples(float sample, UInt16 type, float filterEffectSliderValue)
+float EQ::filterSamples(float sample, UInt16 type, float startFilterEffectSliderValue, float endFilterEffectSliderValue, int numSamples)
 {
     ScopedLock sl(eqLock);
     
@@ -70,21 +70,33 @@ float EQ::filterSamples(float sample, UInt16 type, float filterEffectSliderValue
     }
     else if (iType == kGlobalFilter)
     {
-        
-        
-        if (filterEffectSliderValue < 0)
+        if (startFilterEffectSliderValue == endFilterEffectSliderValue)
         {
-            float filterScale = (filterEffectSliderValue * 9500) + 9500;
+            startFilterEffectSliderValue = endFilterEffectSliderValue;
+        }
+        else
+        {
+            double increment = (endFilterEffectSliderValue - startFilterEffectSliderValue)/numSamples;
+            
+            if (--numSamples >= 0)
+            {
+                startFilterEffectSliderValue += increment;
+            }
+        }
+        
+        if (startFilterEffectSliderValue < 0)
+        {
+            float filterScale = (startFilterEffectSliderValue * 9500) + 9500;
             filter[3].FilterConfig(kLPF, filterScale, 0);
             returnSample = filter[3].Filter(sample);
         }
-        else if (filterEffectSliderValue >= 0)
+        else if (startFilterEffectSliderValue >= 0)
         {
-            
-            float filterScale = (filterEffectSliderValue * 1000);
+            float filterScale = (startFilterEffectSliderValue * 1000);
             filter[3].FilterConfig(kHPF, filterScale, 0);
             returnSample = filter[3].Filter(sample);
         }
+        
         
         
     }

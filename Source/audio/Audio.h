@@ -18,6 +18,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "FilePlayer.h"
 #include "EQ.hpp"
+#include "MIDImapper.hpp"
 
 
 class Audio :   public MidiInputCallback,
@@ -54,12 +55,17 @@ public:
      @param FileGain is the value of the file gain as constant*/
     void crossfadeGain(float sliderValue, float FileGain, float FileGain1);
     
+    int getButtonNum() {return buttonNum;}
+    
+    
+    
 private:
     AudioDeviceManager audioDeviceManager;
     AudioSourcePlayer audioSourcePlayer;
     FilePlayer filePlayer[2];
     MixerAudioSource mixerAudioSource;
-    
+    //MidiMapper midiMapper;
+    int buttonNum;
     
     
 };

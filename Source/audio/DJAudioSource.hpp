@@ -130,6 +130,8 @@ public:
      */
     float GetGain() const;
     
+    void setLoop(bool isLooping, float endPos, float startPos);
+    
     /** If the playhead requires custom setting behaviour (e.g looping, rolls etc)
      then set that behaviour here.
      
@@ -159,7 +161,6 @@ public:
     
     
     std::function<double (  double currentPosition
-                            , double  currentPitch
                             , int      numSamples
                             , bool     playheadIsValid)> customPlayheadProcessing;
     
@@ -182,16 +183,16 @@ private:
     CriticalSection criticalSection;
     
     AudioSampleBuffer buffer;
-    int bufferSize;
+    double bufferSize;
     
-    CatmullRomInterpolator interpolator[2];
     OptionalScopedPointer<juce::AudioFormatReader> reader;
     
     int64 lengthInSamples = 0;
     int numChannels = 0;
-    bool     playing;
+    bool     playing, loop = false;
+    float endPosition = 0, startPosition = 0;
     double playhead;
     double  pitch;
-    float    gain, lastGain;
+    float    gain, lastGain = 1;
     
 };

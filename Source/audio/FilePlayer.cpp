@@ -11,7 +11,7 @@
 #include "FilePlayer.h"
 #include <memory>
 
-FilePlayer::FilePlayer() :  thread ("FilePlayThread")
+FilePlayer::FilePlayer() :  thread ("FilePlayThread"), resampler(&audioSource, false, 2)
 {
     thread.startThread();
     currentAudioFileSource = NULL;
@@ -77,7 +77,8 @@ void FilePlayer::loadFile(const File& newFile)
   
        
         
-        totalSamples = reader->lengthInSamples;
+       totalSamples = reader->lengthInSamples;
+        
         
         waveformFile = newFile;
     }
@@ -103,13 +104,11 @@ double FilePlayer::getLengthInSeconds()
 
 void FilePlayer::setGain(float sliderValue)
 {
-    audioSource.SetGain(sliderValue);
+    gain = sliderValue;
 }
 
 float FilePlayer::getGain()
 {
-    float gain;
-    gain = audioSource.GetGain();
     return gain;
 }
 
@@ -122,6 +121,11 @@ void FilePlayer::setEqFreqGain (float gain, int eqIndex)
 int64 FilePlayer::getTotalSamples()
 {
     return totalSamples;
+}
+
+void FilePlayer::setLoopStart(float start)
+{
+    loopSample = start;
 }
 
 void FilePlayer::setBpmRatio(double bpmRatio)
@@ -138,6 +142,7 @@ void FilePlayer::setFilterValue(float filterVal)
 void FilePlayer::setDelayValue(float delayVal)
 {
     delayValue = delayVal;
+    
 }
 
 void FilePlayer::setReverbValue(float reverbVal)
@@ -145,22 +150,16 @@ void FilePlayer::setReverbValue(float reverbVal)
     reverbValue = reverbVal;
 }
 
-//void FilePlayer::setLooping(bool newState, float startPos, float secondsPerBeat)
-//{
-//    ScopedLock sl(loopLock);
-//
-//    while (newState == true)
-//    {
-//        float endPos = startPos + (4 * secondsPerBeat);
-//
-//        float currentPos = audioTransportSource.getCurrentPosition() * audioTransportSource.getLengthInSeconds();
-//
-//        if (currentPos == endPos || currentPos > endPos)
-//        {
-//            audioTransportSource.setPosition(startPos / audioTransportSource.getLengthInSeconds());
-//        }
-//    }
-//}
+void FilePlayer::setLooping(bool newState, float secondsPerBeat, int bars)
+{
+    numBars = bars;
+    float loopLength = (bars * secondsPerBeat) * getSampleRate();
+    float endPos = loopSample + loopLength;
+    endBounds = endPos/getSampleRate();
+    
+    audioSource.setLoop(newState, endPos, loopSample);
+    
+}
 
 
 
@@ -172,7 +171,7 @@ void FilePlayer::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
     
     samplesPerFrame = samplesPerBlockExpected;
     sRate = sampleRate;
-    audioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    resampler.prepareToPlay(samplesPerBlockExpected, sampleRate);
     delay[0].initialize(sampleRate);
     delay[1].initialize(sampleRate);
     for (int counter = 0; counter < 16; counter++)
@@ -185,13 +184,15 @@ void FilePlayer::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 
 void FilePlayer::releaseResources()
 {
-    audioSource.releaseResources();
+    resampler.releaseResources();
 }
 
 void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
 {
-    audioSource.SetPitch(BpmRatio);
-    audioSource.getNextAudioBlock (bufferToFill);
+//    audioSource.SetPitch(BpmRatio);
+    resampler.setResamplingRatio(BpmRatio);
+    resampler.getNextAudioBlock (bufferToFill);
+    bufferToFill.buffer->applyGainRamp(bufferToFill.startSample, bufferToFill.numSamples, lastGain, gain);
     
     for (int counter = bufferToFill.startSample; counter < bufferToFill.numSamples; counter++)
     {
@@ -199,13 +200,15 @@ void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
         {
             float sample = bufferToFill.buffer->getSample (chan, counter);
 
-            sample += eq[chan].filterSamples (sample, kBass, 0) * eq[chan].getFreqGain(0);
-            sample += eq[chan].filterSamples (sample, kMid, 0)  * eq[chan].getFreqGain(1);
-            sample += eq[chan].filterSamples (sample, kHigh, 0) * eq[chan].getFreqGain(2);
+            sample += eq[chan].filterSamples (sample, kBass, 0, 0, 0) * eq[chan].getFreqGain(0);
+            sample += eq[chan].filterSamples (sample, kMid, 0, 0, 0)  * eq[chan].getFreqGain(1);
+            sample += eq[chan].filterSamples (sample, kHigh, 0, 0, 0) * eq[chan].getFreqGain(2);
             
-            sample = eq[chan].filterSamples (sample, kGlobalFilter, filterValue);
+            sample = eq[chan].filterSamples (sample, kGlobalFilter, lastFilterValue, filterValue, bufferToFill.numSamples);
             
-            sample += delay[chan].read (delayValue * 2) * delayValue;
+            sample += delay[chan].delayRamp(lastDelayValue
+                                            , delayValue
+                                            , bufferToFill.numSamples);
             delay[chan].write (sample);
             
             for (int counter = 0; counter < 16; counter++)
@@ -214,15 +217,18 @@ void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
             }
             for (int counter = 0; counter < 16; counter++)
             {
-                sample += eq[chan].filterSamples (reverb[chan][counter].read((reverbValue/4) * (counter + 1)) * ((reverbValue * 1.5)/(counter + 1)), kReverbFilter, 0);
+                sample += eq[chan].filterSamples (reverb[chan][counter].read(reverbValue/1.5) * 0.3, kReverbFilter, 0, 0, 0);
             }
 
-            //sample = ;
-
+            
+            
             bufferToFill.buffer->setSample (chan, counter, sample);
+            
+            
         }
     }
-    
-    
+    lastDelayValue = delayValue;
+    lastFilterValue = filterValue;
+    lastGain = gain;
     
 }

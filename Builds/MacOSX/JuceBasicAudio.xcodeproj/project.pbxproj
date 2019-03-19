@@ -38,6 +38,7 @@
 		D75D26E3FEC799EE624AD2B3 /* include_juce_gui_extra.mm in Sources */ = {isa = PBXBuildFile; fileRef = AE3A9E5E4856028AE8FBCFE5 /* include_juce_gui_extra.mm */; };
 		E1586FA2FD41CD2E5B6B866A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F5819656EDBE6F28958BFC3 /* QuartzCore.framework */; };
 		EB23ECD8221EF7BC00A9B272 /* DJAudioSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB23ECD6221EF7BC00A9B272 /* DJAudioSource.cpp */; };
+		EB788CB72237F644002C08F8 /* MIDImapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB788CB52237F644002C08F8 /* MIDImapper.cpp */; };
 		EBE3D311222C4FEA00C9F9DC /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBE3D30F222C4FEA00C9F9DC /* Delay.cpp */; };
 		F5BFAC6007B40DE1B4B46FCC /* FilePlayerGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27A57E5684388E7A3E00C27C /* FilePlayerGui.cpp */; };
 		F6BE8DF0B7575BF4710E35B0 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CD26642AEC4BA9A583C0CAC /* Main.cpp */; };
@@ -100,6 +101,8 @@
 		E805860298E3A6CA663C8584 /* juce_audio_processors */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_processors; path = ../../../Juce/modules/juce_audio_processors; sourceTree = SOURCE_ROOT; };
 		EB23ECD6221EF7BC00A9B272 /* DJAudioSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DJAudioSource.cpp; path = ../../Source/audio/DJAudioSource.cpp; sourceTree = "<group>"; };
 		EB23ECD7221EF7BC00A9B272 /* DJAudioSource.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = DJAudioSource.hpp; path = ../../Source/audio/DJAudioSource.hpp; sourceTree = "<group>"; };
+		EB788CB52237F644002C08F8 /* MIDImapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MIDImapper.cpp; path = ../../Source/audio/MIDImapper.cpp; sourceTree = "<group>"; };
+		EB788CB62237F644002C08F8 /* MIDImapper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = MIDImapper.hpp; path = ../../Source/audio/MIDImapper.hpp; sourceTree = "<group>"; };
 		EBE3D30F222C4FEA00C9F9DC /* Delay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Delay.cpp; path = ../../Source/audio/Delay.cpp; sourceTree = "<group>"; };
 		EBE3D310222C4FEA00C9F9DC /* Delay.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Delay.hpp; path = ../../Source/audio/Delay.hpp; sourceTree = "<group>"; };
 		ED45E7A646319AD7F31CCBC6 /* juce_audio_utils */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_utils; path = ../../../Juce/modules/juce_audio_utils; sourceTree = SOURCE_ROOT; };
@@ -241,6 +244,8 @@
 			children = (
 				1AAC9569B5ECEF3608760333 /* Audio.cpp */,
 				5058440381D2B29D48DD2571 /* Audio.h */,
+				EB788CB52237F644002C08F8 /* MIDImapper.cpp */,
+				EB788CB62237F644002C08F8 /* MIDImapper.hpp */,
 				12F46A6E6E7FBBA3AE7E74AC /* AudioAnalyser.cpp */,
 				EBE3D30F222C4FEA00C9F9DC /* Delay.cpp */,
 				EBE3D310222C4FEA00C9F9DC /* Delay.hpp */,
@@ -371,6 +376,7 @@
 				67A869A36D72FC8978C63DEB /* BiquadFilter.cpp in Sources */,
 				8A665F14005B8E1F98864F9B /* ColouredAudioThumbnail.cpp in Sources */,
 				F6BE8DF0B7575BF4710E35B0 /* Main.cpp in Sources */,
+				EB788CB72237F644002C08F8 /* MIDImapper.cpp in Sources */,
 				22F2FB0F09E2D9DE2BC4BF8B /* include_juce_audio_basics.mm in Sources */,
 				8F965F7B5E33045900D49B04 /* include_juce_audio_devices.mm in Sources */,
 				B3CA6DABBFADF089A1699A7F /* include_juce_audio_formats.mm in Sources */,

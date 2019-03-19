@@ -63,6 +63,8 @@ public:
     
     void lookAndFeelChanged() override;
     
+    
+    
     //MenuBarEnums/Callbacks========================================================
     enum Menus
     {
@@ -98,6 +100,7 @@ private:
     std::unique_ptr<AudioAnalyser>            analyser;
     
     float syncBpm;
+    int buttonNum;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

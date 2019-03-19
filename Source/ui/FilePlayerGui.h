@@ -31,7 +31,7 @@ class FilePlayerGui :   public Component,
 {
 public:
     /**
-     constructor - receives a reference to a FilePlayer object to control
+     Constructor - receives a reference to a FilePlayer object to control
      */
     FilePlayerGui (FilePlayer& filePlayer_, bool right);
     
@@ -44,7 +44,7 @@ public:
     void resized() override;
     
     /**Button Listener - called when a button is clicked*/
-     void buttonClicked(Button* button) override;
+    void buttonClicked(Button* button) override;
     
     /** Slider Listener - called when a slider is moved*/
     void sliderValueChanged(Slider* slider) override;
@@ -57,39 +57,52 @@ public:
     
     void paint (Graphics& g) override;
     
+    /** Used to draw graphics for when there is no relevant file loaded into the application */
     void paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
     
+    /** Used to draw an audio waveform thumbnail */
     void paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
     
     void changeListenerCallback (ChangeBroadcaster* source) override;
     
     void transportSourceChanged();
     
+    /** Updates the thumbnail */
     void thumbnailChanged();
     
+    /** Set the current BPM*/
     void setBPM (double bpm);
     
+    /** Set the orginal BPM of the loaded audio file */
     void setOriginalBpm (double originalBpm);
     
+    /** Set the musical key of the loaded track - visual feedback only */
     void setKey (juce::String key);
     
+    /** Set the beat grid start time */
     void setBGS (float BGS);
     
+    /** Set the BPM ratio of an audio file compared to its orginal BPM i.e. 1 = normal speed, 2 = double the speed, 0.5 = half the speed */
     void setBpmRatio (double bpmRatio);
     
+    /** Set the BPM that the other channel should be synced to */
     void setSyncBpm (double syncBpm);
     
     float getBpm() {return Bpm;}
     float getOBpm() {return OBpm;}
     float getBGS() {return beatGridStart;}
     
+    /** Set whether the channel should dictate the BPM or not for when matching BPM's */
     void setMaster (bool isMaster);
     
     bool getMaster();
     
+    /** Represents the details of the analysis of an audio file, the key and the BPM */
     void audioAnalysis();
     
     void setSectionPaint(Graphics& g, const Rectangle<int>& sectionBounds);
+    
+    void midiAction(int midiNum);
     
     //void mouseUp(const juce::MouseEvent &event) override;
     
@@ -98,15 +111,14 @@ public:
     float crossfadeFileGainValue();
 private:
     FilePlayer& filePlayer;
-    //EQ& eq;
     AudioThumbnailCache audioCache;
     ColouredAudioThumbnail audioWaveform;
     std::unique_ptr<BeatGrid> beatgrid;
     std::vector<BeatMarkerData> markers;
-    Atomic<bool> loop;
+    Atomic<bool> loop = false;
     
     TextButton playButton;
-    TextButton startLoopButton, endLoopButton;
+    TextButton fourBarLoopButton, eightBarLoopButton;
     TextButton zoomPlusButton, zoomMinusButton;
     TextButton syncButton;
     //MouseInputSource click;
@@ -121,14 +133,15 @@ private:
     Label time, totalTime;
     
     String key1;
-    float timeInSeconds, totalTimeInSeconds, pValue;
+    float timeInSeconds, totalTimeInSeconds = 0, pValue;
+    float secondStart;
     float zoomNo = 8.0;
     float nextDownBeatTime;
-    double secondsPerBeat, Bpm, BpmRatio, OBpm;
+    double secondsPerBeat, Bpm, BpmRatio = 1, OBpm;
     float totalMeasures, waveformRatio = 1.0;
     float beatGridStart;
     double SyncBpm;
-    int syncCounter;
+    float loopStart;
     bool Master, Right, newMaster;
     
 };

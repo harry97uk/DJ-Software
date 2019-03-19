@@ -25,10 +25,13 @@ public:
     
     void write (float channel);
     
+    Float32 delayRamp(float delayStartValue, float delayEndValue, int numSamples);
+    
 private:
     Float32 *pfCircularBuffer;
     Float32 fSR;
     SInt32 iBufferSize, iBufferWritePos;
+    float delayTime = 0;
 };
 
 #endif /* Delay_hpp */

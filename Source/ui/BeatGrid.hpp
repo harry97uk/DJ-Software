@@ -7,8 +7,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 /* Copyright (C) Sam Spreadborough - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
  * Written by Sam Spreadborough <spreads.sam@gmail.com>, 2018
  */
 

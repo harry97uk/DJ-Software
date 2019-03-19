@@ -19,7 +19,7 @@ formatManager(new AudioFormatManager),
 audioDeviceManager(new AudioDeviceManager)
 {
 
-   
+    
     formatManager->registerBasicFormats();
     wavFiles.reset(new WildcardFileFilter(formatManager->getWildcardForAllFormats(), "", "Audio file filter"));
     audioDeviceManager->initialiseWithDefaultDevices(2, 2);
@@ -29,12 +29,15 @@ audioDeviceManager(new AudioDeviceManager)
     addAndMakeVisible(filePlayerGui1);
     
     filePan.addListener(this);
+    filePan.setTextBoxStyle(filePan.NoTextBox, false, 0, 0);
     addAndMakeVisible(&filePan);
     filePan.setRange(-1, 1);
     filePan.setValue(0);
     
     masterGain.addListener(this);
     masterGain.setValue(1);
+    masterGain.setSliderStyle(Slider::Rotary);
+    masterGain.setTextBoxStyle(masterGain.NoTextBox, false, 0, 0);
     addAndMakeVisible(&masterGain);
     masterGain.setRange(0, 1);
     
@@ -63,6 +66,8 @@ audioDeviceManager(new AudioDeviceManager)
     
     setSize(1250, 650);
     
+    
+    
 }
 
 MainComponent::~MainComponent()
@@ -78,9 +83,9 @@ void MainComponent::resized()
     
     filePlayerGui.setBounds (0, 0, getWidth() - getWidth()/3, getHeight()-20);
     filePlayerGui1.setBounds (getWidth()/3, 0, getWidth() -  getWidth()/3, getHeight()-20);
-    masterGain.setBounds(0, getHeight()-20, getWidth(), 20);
-    filePan.setBounds(0, getHeight()-40, getWidth(), 20);
-    fileChooser->setBounds(0, 350, getWidth(), 200);
+    masterGain.setBounds((getWidth()/2) - 120, 0, 60, 60);
+    filePan.setBounds((getWidth()/2) - 120, getHeight()-40, 240, 20);
+    fileChooser->setBounds(0, 390, getWidth(), 200);
     
     //Load & Master Buttons
     Rectangle<int> loadMasterBounds (getWidth()/3, 300, getWidth()/3, 50);
@@ -280,6 +285,7 @@ void MainComponent::lookAndFeelChanged()
 {
     
 }
+
 
 //MenuBarCallbacks==============================================================
 StringArray MainComponent::getMenuBarNames()
