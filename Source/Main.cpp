@@ -61,7 +61,7 @@ public:
     {
     public:
         MainWindow (String name, Audio& audio) :    DocumentWindow (name,
-                                                    Colours::darkslategrey,
+                                                    Colours::midnightblue,
                                                     DocumentWindow::allButtons)
         {
             ScopedPointer<MainComponent> mainComponent (new MainComponent (audio));
@@ -69,10 +69,10 @@ public:
             
             setMenuBar (mainComponent);
             setContentOwned (mainComponent.release(), true);
-            
+        
 
             centreWithSize (getWidth(), getHeight());
-            setVisible (true);
+            setVisible(true);
             setResizable(true, true);
             setFullScreen(true);
             setName("Harry G - DJ Software");

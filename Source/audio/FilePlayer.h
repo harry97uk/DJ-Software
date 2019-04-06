@@ -1,31 +1,27 @@
-/*
-  ==============================================================================
 
-    FilePlayer.h
-    Created: 22 Jan 2013 2:49:14pm
-    Author:  tj3-mitchell
-
-  ==============================================================================
-*/
 
 #ifndef H_FILEPLAYER
 #define H_FILEPLAYER
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "EQ.hpp"
-#include "Delay.hpp"
+#include "../audio/effects/EQ.hpp"
+#include "../audio/effects/Delay.hpp"
+#include "../audio//effects/Filter.hpp"
+#include "../audio/effects/Reverb.hpp"
 #include "DJAudioSource.hpp"
+
+
 
 /**
  Simple FilePlayer class - streams audio from a file.
  */
-class FilePlayer : public AudioSource
+class FilePlayer :  public AudioSource
 {
 public:
     /**
      Constructor
      */
-    FilePlayer();
+    FilePlayer (ValueTree& state);
     
     /**
      Destructor
@@ -65,6 +61,7 @@ public:
     /** @return the value of the amplitude in a range from 0 o 1*/
     float getGain();
     
+    /** sets the gain of each EQ fequency band */
     void setEqFreqGain (float gain, int eqIndex);
     
     void setLooping(bool newState, float secondsPerBeat, int bars);
@@ -77,7 +74,7 @@ public:
     
     float getSampleRate() {return sRate;}
     
-    void setLoopStart(float start);
+    void setLoopStart(int start);
     
     int64 getTotalSamples();
     
@@ -95,14 +92,19 @@ public:
     
     float getEndBounds() {return endBounds;}
     
+    void setReverse(bool rev) {audioSource.setReverse(rev);}
+    
+    void setSecondsPerBeat(float secondsPerBeat);
+    
+    
     //AudioSource
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
     
+    
 private:
     TimeSliceThread thread;//thread for the transport source
-    AudioFormatReaderSource* currentAudioFileSource;    //reads audio from the file
     std::unique_ptr<AudioFormatReader> reader;
     DJAudioSource audioSource;
     ResamplingAudioSource resampler;
@@ -110,7 +112,8 @@ private:
     
     EQ eq[2];
     DelaySignal delay[2];
-    DelaySignal reverb[2][16];
+    myReverb reverb[2];
+    Filter filter[2];
     AudioFormatManager formatManager;
     CriticalSection loopLock;
     AudioSourceChannelInfo fullAudio;
@@ -121,11 +124,12 @@ private:
     double sRate;
     float endBounds;
     float filterValue = 0, delayValue = 0, reverbValue = 0;
-    float lastDelayValue = 0, lastFilterValue = 0;
+    float lastDelayValue = 0, lastFilterValue = 0, lastReverbValue = 0;
     float gain = 1, lastGain = 1;
     float loopSample;
+    float secondsPB = 0.1;
     double BpmRatio;
-    Random reverbDelay;
+    int buttonNum = -1;
     File waveformFile;
     
     

@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="JuceBasicAudio\Source\audio\effects">
+      <UniqueIdentifier>{70C17E6E-7594-3EEC-03F1-3BD6A51BC219}</UniqueIdentifier>
+    </Filter>
     <Filter Include="JuceBasicAudio\Source\audio">
       <UniqueIdentifier>{BBC0D4B3-C41B-B8E7-8C37-C0DC41D49DCC}</UniqueIdentifier>
     </Filter>
@@ -397,19 +400,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\audio\effects\Delay.cpp">
+      <Filter>JuceBasicAudio\Source\audio\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\audio\effects\EQ.cpp">
+      <Filter>JuceBasicAudio\Source\audio\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\audio\effects\Filter.cpp">
+      <Filter>JuceBasicAudio\Source\audio\effects</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\audio\Audio.cpp">
+      <Filter>JuceBasicAudio\Source\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\audio\MIDImapper.cpp">
+      <Filter>JuceBasicAudio\Source\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\audio\AudioState.cpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\audio\AudioAnalyser.cpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\audio\Effects.cpp">
-      <Filter>JuceBasicAudio\Source\audio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\audio\EQ.cpp">
-      <Filter>JuceBasicAudio\Source\audio</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\audio\FilePlayer.cpp">
+      <Filter>JuceBasicAudio\Source\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\audio\DJAudioSource.cpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\audio\SimpleFilter.cpp">
@@ -2265,16 +2280,28 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\audio\effects\Delay.hpp">
+      <Filter>JuceBasicAudio\Source\audio\effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\audio\effects\EQ.hpp">
+      <Filter>JuceBasicAudio\Source\audio\effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\audio\effects\Filter.hpp">
+      <Filter>JuceBasicAudio\Source\audio\effects</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\audio\Audio.h">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\audio\Effects.hpp">
+    <ClInclude Include="..\..\Source\audio\MIDImapper.hpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\audio\EQ.hpp">
+    <ClInclude Include="..\..\Source\audio\AudioState.hpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\audio\FilePlayer.h">
+      <Filter>JuceBasicAudio\Source\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\audio\DJAudioSource.hpp">
       <Filter>JuceBasicAudio\Source\audio</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\audio\SimpleFilter.hpp">

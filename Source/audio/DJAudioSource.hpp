@@ -1,6 +1,4 @@
 /* Copyright (C) Sam Spreadborough - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
  * Written by Sam Spreadborough <spreads.sam@gmail.com>, 2018
  */
 
@@ -67,16 +65,7 @@ public:
      */
     void SetPlaying(bool newPlaying);
     
-    /** Sets the new pitch.
-     
-     Pitch should be relative, not absolute BPM values.
-     
-     Pitch can be negative, and this will cause the AudioSource to play in
-     reverse.
-     
-     @param newPitch the new pitch value to set.
-     */
-    void SetPitch(double newPitch);
+    void setReverse(bool isReverse);
     
     /** Sets the playhead position in samples.
      
@@ -132,37 +121,6 @@ public:
     
     void setLoop(bool isLooping, float endPos, float startPos);
     
-    /** If the playhead requires custom setting behaviour (e.g looping, rolls etc)
-     then set that behaviour here.
-     
-     This processing will be done in realtime for every audio block.
-     
-     @code
-     // Loop
-     
-     ProcessNewPosition = [=]( sample_t currentPosition
-     , pitch_t  currentPitch
-     , int      numSamples
-     , bool     playheadIsValid ) -> sample_t
-     {
-     if (currentPosition > loopEnd)
-     return loopStart
-     else if (currentPosition > loopEnd)
-     return loopEnd
-     else
-     return currentPosition + (currentPitch * numSamples);
-     };
-     
-     @endcode
-     
-     If no std::function is set, then DJAudioSource will simply
-     increment the playhead by the pitch.
-     */
-    
-    
-    std::function<double (  double currentPosition
-                            , int      numSamples
-                            , bool     playheadIsValid)> customPlayheadProcessing;
     
     
     
@@ -193,6 +151,7 @@ private:
     float endPosition = 0, startPosition = 0;
     double playhead;
     double  pitch;
+    bool reverse = false;
     float    gain, lastGain = 1;
     
 };

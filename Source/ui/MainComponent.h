@@ -43,6 +43,8 @@ public:
     
     void buttonClicked(Button* button) override;
     
+    void buttonStateChanged(Button* button) override;
+    
     /** Function that does something when the selection is changed in the file browser
      @see FileBrowserListener*/
     void selectionChanged() override;
@@ -62,7 +64,6 @@ public:
     void paint (Graphics& g) override;
     
     void lookAndFeelChanged() override;
-    
     
     
     //MenuBarEnums/Callbacks========================================================
@@ -89,6 +90,10 @@ private:
     FilePlayerGui filePlayerGui1;
     Slider masterGain;
     Slider filePan;
+    TextButton fileControlPlus;
+    TextButton fileControlMinus;
+    TextButton record;
+    int fileNum = 0;
     TextButton loadA, loadB, masterA, masterB;
     std::unique_ptr<WildcardFileFilter> wavFiles;
     ScopedPointer<FileBrowserComponent> fileChooser;
@@ -101,6 +106,7 @@ private:
     
     float syncBpm;
     int buttonNum;
+    bool save = false;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

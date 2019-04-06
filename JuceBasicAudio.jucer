@@ -7,16 +7,28 @@
   <MAINGROUP id="oht8lM" name="JuceBasicAudio">
     <GROUP id="{956C6E0C-B36F-1A18-0A05-3D3C7CED70E8}" name="Source">
       <GROUP id="{2B781AD3-C2AF-5605-6983-E9EBD18CCD51}" name="audio">
+        <GROUP id="{931E8B1A-3535-31A7-A779-72682D74D982}" name="effects">
+          <FILE id="NDKBVv" name="Delay.cpp" compile="1" resource="0" file="Source/audio/effects/Delay.cpp"/>
+          <FILE id="SEUAxf" name="Delay.hpp" compile="0" resource="0" file="Source/audio/effects/Delay.hpp"/>
+          <FILE id="f5rpj0" name="EQ.cpp" compile="1" resource="0" file="Source/audio/effects/EQ.cpp"/>
+          <FILE id="POEC3V" name="EQ.hpp" compile="0" resource="0" file="Source/audio/effects/EQ.hpp"/>
+          <FILE id="IzfHPP" name="Filter.cpp" compile="1" resource="0" file="Source/audio/effects/Filter.cpp"/>
+          <FILE id="qZCjA1" name="Filter.hpp" compile="0" resource="0" file="Source/audio/effects/Filter.hpp"/>
+        </GROUP>
         <FILE id="bOFAtA" name="Audio.cpp" compile="1" resource="0" file="Source/audio/Audio.cpp"/>
         <FILE id="IHdo2K" name="Audio.h" compile="0" resource="0" file="Source/audio/Audio.h"/>
+        <FILE id="grxJO1" name="MIDImapper.cpp" compile="1" resource="0" file="Source/audio/MIDImapper.cpp"/>
+        <FILE id="aiTzRz" name="MIDImapper.hpp" compile="0" resource="0" file="Source/audio/MIDImapper.hpp"/>
+        <FILE id="q0aF7S" name="AudioState.cpp" compile="1" resource="0" file="Source/audio/AudioState.cpp"/>
+        <FILE id="CBSmRQ" name="AudioState.hpp" compile="0" resource="0" file="Source/audio/AudioState.hpp"/>
         <FILE id="Rd2lmu" name="AudioAnalyser.cpp" compile="1" resource="0"
               file="Source/audio/AudioAnalyser.cpp"/>
-        <FILE id="G6WXZN" name="Effects.cpp" compile="1" resource="0" file="Source/audio/Effects.cpp"/>
-        <FILE id="wyDPcd" name="Effects.hpp" compile="0" resource="0" file="Source/audio/Effects.hpp"/>
-        <FILE id="zFTfSj" name="EQ.cpp" compile="1" resource="0" file="Source/audio/EQ.cpp"/>
-        <FILE id="pgWNQ6" name="EQ.hpp" compile="0" resource="0" file="Source/audio/EQ.hpp"/>
         <FILE id="EJcTHW" name="FilePlayer.cpp" compile="1" resource="0" file="Source/audio/FilePlayer.cpp"/>
         <FILE id="ba4CqB" name="FilePlayer.h" compile="0" resource="0" file="Source/audio/FilePlayer.h"/>
+        <FILE id="iucDN3" name="DJAudioSource.cpp" compile="1" resource="0"
+              file="Source/audio/DJAudioSource.cpp"/>
+        <FILE id="bPGprN" name="DJAudioSource.hpp" compile="0" resource="0"
+              file="Source/audio/DJAudioSource.hpp"/>
         <FILE id="ANu9P6" name="SimpleFilter.cpp" compile="1" resource="0"
               file="Source/audio/SimpleFilter.cpp"/>
         <FILE id="PWEAX8" name="SimpleFilter.hpp" compile="0" resource="0"

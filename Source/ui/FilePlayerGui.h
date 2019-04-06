@@ -13,7 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../audio/FilePlayer.h"
-#include "../audio/EQ.hpp"
+#include "../audio/effects/EQ.hpp"
 #include "../audio/Audio.h"
 #include "BeatGrid.hpp"
 #include "../DRowAudio/ColouredAudioThumbnail.hpp"
@@ -27,13 +27,14 @@ class FilePlayerGui :   public Component,
                         public Button::Listener,
                         public Slider::Listener,
                         public Timer,
-                        public ChangeListener
+                        public ChangeListener,
+                        public ValueTree::Listener
 {
 public:
     /**
      Constructor - receives a reference to a FilePlayer object to control
      */
-    FilePlayerGui (FilePlayer& filePlayer_, bool right);
+    FilePlayerGui (Audio& audio, bool right);
     
     /**
      Destructor 
@@ -45,6 +46,9 @@ public:
     
     /**Button Listener - called when a button is clicked*/
     void buttonClicked(Button* button) override;
+    
+    /**Button Listener - called when a button state is changed*/
+    void buttonStateChanged(Button* button) override;
     
     /** Slider Listener - called when a slider is moved*/
     void sliderValueChanged(Slider* slider) override;
@@ -102,13 +106,19 @@ public:
     
     void setSectionPaint(Graphics& g, const Rectangle<int>& sectionBounds);
     
-    void midiAction(int midiNum);
-    
     //void mouseUp(const juce::MouseEvent &event) override;
     
     
     /** @return the value of the gain slider for each file player for use with the overall crossfade slider*/
     float crossfadeFileGainValue();
+    
+    
+    //ValueTreeListener
+    void valueTreePropertyChanged (ValueTree& treeWhosePropertyHasChanged, const Identifier& property) override;
+    void valueTreeChildAdded (ValueTree& parentTree, ValueTree& childWhichHasBeenAdded) override {};
+    void valueTreeChildRemoved (ValueTree& parentTree, ValueTree& childWhichHasBeenRemoved, int indexFromWhichChildWasRemoved) override {};
+    void valueTreeChildOrderChanged (ValueTree& parentTreeWhoseChildrenHaveMoved, int oldIndex, int newIndex) override {};
+    void valueTreeParentChanged (ValueTree& treeWhoseParentHasChanged) override {};
 private:
     FilePlayer& filePlayer;
     AudioThumbnailCache audioCache;
@@ -116,7 +126,7 @@ private:
     std::unique_ptr<BeatGrid> beatgrid;
     std::vector<BeatMarkerData> markers;
     Atomic<bool> loop = false;
-    
+
     TextButton playButton;
     TextButton fourBarLoopButton, eightBarLoopButton;
     TextButton zoomPlusButton, zoomMinusButton;
@@ -133,7 +143,8 @@ private:
     Label time, totalTime;
     
     String key1;
-    float timeInSeconds, totalTimeInSeconds = 0, pValue;
+    float timeInSeconds, totalTimeInSeconds = 0, originalTotalTime = 0;
+    bool midiButtonClicked = false;
     float secondStart;
     float zoomNo = 8.0;
     float nextDownBeatTime;

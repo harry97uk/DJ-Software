@@ -66,22 +66,4 @@ void DelaySignal::write (float channel)
     
 }
 
-Float32 DelaySignal::delayRamp(float delayStartValue, float delayEndValue, int numSamples)
-{
-    Float32 value = 0;
-    if (delayStartValue == delayEndValue)
-    {
-        delayStartValue = delayEndValue;
-    }
-    else
-    {
-        double increment = (delayEndValue - delayStartValue)/numSamples;
-        
-        if (--numSamples >= 0)
-        {
-            delayStartValue += increment;
-        }
-    }
-    value = read(delayStartValue * 2) * (delayStartValue/1.5);
-    return value;
-}
+

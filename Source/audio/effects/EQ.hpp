@@ -9,8 +9,8 @@
 #define EQ_hpp
 
 #include <stdio.h>
-#include "SimpleFilter.hpp"
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../SimpleFilter.hpp"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
 /** An enumeration to select the frequency range of the audio*/
 enum { kBass = 0, kMid, kHigh, kGlobalFilter, kReverbFilter};
@@ -33,7 +33,7 @@ public:
     /**Reads the samples and filters them based on the frequency range picked
      @param sample The incoming sample
      @param type The frequency range to filter, this is what the enumeration above is in refernce to*/
-    float filterSamples(float sample, UInt16 type, float startFilterEffectSliderValue, float endFilterEffectSliderValue, int numSamples);
+    float filterSamples(float sample, UInt16 type);
     
     
     /** @param freqGainNum Selects the specific frequency range

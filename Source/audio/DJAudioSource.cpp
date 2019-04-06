@@ -1,13 +1,11 @@
 /* Copyright (C) Sam Spreadborough - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
  * Written by Sam Spreadborough <spreads.sam@gmail.com>, 2018
  */
 
 #include "DJAudioSource.hpp"
 
 DJAudioSource::DJAudioSource()
-: playing  (true)
+: playing  (false)
 , playhead (0.0)
 , pitch    (1.0)
 , gain     (1.f)
@@ -16,15 +14,16 @@ DJAudioSource::DJAudioSource()
 
 DJAudioSource::~DJAudioSource()
 {
-    
+    Reset();
 }
 
 void DJAudioSource::SetSource(AudioFormatReader *formatReader, bool deleteWhenFinished)
 {
     const ScopedLock lock(criticalSection);
     
-   
     
+   
+
     Reset();
     reader.set(formatReader, deleteWhenFinished);
     lengthInSamples = formatReader->lengthInSamples;
@@ -38,7 +37,7 @@ void DJAudioSource::SetSource(AudioFormatReader *formatReader, bool deleteWhenFi
                  , 0
                  , true, true);
     
-    reader->metadataValues.getDescription();
+
     
 }
 
@@ -49,19 +48,14 @@ AudioFormatReader *DJAudioSource::GetSource() const
 
 void DJAudioSource::SetPlaying(bool newPlaying)
 {
-    const ScopedLock lock(criticalSection);
+    //const ScopedLock lock(criticalSection);
     
     playing = newPlaying;
 }
 
-void DJAudioSource::SetPitch(double newPitch)
+void DJAudioSource::setReverse(bool isReverse)
 {
-    const ScopedLock lock(criticalSection);
-    
-    pitch = newPitch;
-    
-    
-    
+    reverse = isReverse;
 }
 
 void DJAudioSource::SetPlayheadSample(double newPlayheadSample)
@@ -88,7 +82,39 @@ void DJAudioSource::SetGain(float newGain)
 
 void DJAudioSource::setLoop(bool isLooping, float endPos, float startPos)
 {
+    //look for positive to negative change
     loop = isLooping;
+    float startSample = buffer.getSample(0, startPos);
+    if (startSample > 0)
+    {
+        while (startSample > 0)
+        {
+            startSample = buffer.getSample(0, startPos++);
+        }
+    }
+    else if (startSample < 0)
+    {
+        while (startSample < 0)
+        {
+            startSample = buffer.getSample(0, startPos++);
+        }
+    }
+    
+    float endSample = buffer.getSample(0, endPos);
+    if (endSample > 0)
+    {
+        while (endSample > 0)
+        {
+            endSample = buffer.getSample(0, endPos++);
+        }
+    }
+    else if (endSample < 0)
+    {
+        while (endSample < 0)
+        {
+            endSample = buffer.getSample(0, endPos++);
+        }
+    }
     endPosition = endPos;
     startPosition = startPos;
 }
@@ -111,17 +137,16 @@ void DJAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
 {
     if (PlayheadIsValid() && IsPlaying())
     {
-        const bool reverse = pitch < 0.f;
-
+        
+        
         const int64 sourceStartSample = int64 (playhead) - (reverse ? bufferToFill.numSamples : 0);
-        bufferToFill.buffer->copyFrom (0, bufferToFill.startSample, buffer, 0, sourceStartSample, bufferToFill.numSamples);
-        bufferToFill.buffer->copyFrom (1, bufferToFill.startSample, buffer, 1, sourceStartSample, bufferToFill.numSamples);
+        bufferToFill.buffer->copyFrom (0, bufferToFill.startSample, buffer, 0, (int)sourceStartSample, bufferToFill.numSamples);
+        bufferToFill.buffer->copyFrom (1, bufferToFill.startSample, buffer, 1, (int)sourceStartSample, bufferToFill.numSamples);
         
         if (reverse)
-                bufferToFill.buffer->reverse(0, bufferToFill.numSamples);
-        
-        
-        
+            bufferToFill.buffer->reverse(0, bufferToFill.numSamples);
+       
+
     }
     else
     {
@@ -138,14 +163,6 @@ void DJAudioSource::IncrementPlayhead(int numSamples)
     {
         const ScopedLock lock(criticalSection);
         
-        if (customPlayheadProcessing)
-        {
-            playhead = customPlayheadProcessing(  playhead
-                                                , numSamples
-                                                , PlayheadIsValid());
-        }
-        else
-        {
             if (loop == true)
             {
                 if (playhead >= endPosition)
@@ -157,7 +174,6 @@ void DJAudioSource::IncrementPlayhead(int numSamples)
             }
             else
                 playhead += numSamples;
-        }
     }
 }
 

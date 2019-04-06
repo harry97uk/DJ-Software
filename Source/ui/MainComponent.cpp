@@ -11,15 +11,15 @@
 
 //==============================================================================
 MainComponent::MainComponent (Audio& audio_) : audio (audio_),
-filePlayerGui(audio.getFilePlayer(0), false),
-filePlayerGui1(audio.getFilePlayer(1), true),
+filePlayerGui (audio, false),
+filePlayerGui1 (audio, true),
 sourcePlayer(new AudioSourcePlayer),
 readerSource(nullptr),
 formatManager(new AudioFormatManager),
 audioDeviceManager(new AudioDeviceManager)
 {
 
-    
+    ValueTree& audioState = audio.getState();
     formatManager->registerBasicFormats();
     wavFiles.reset(new WildcardFileFilter(formatManager->getWildcardForAllFormats(), "", "Audio file filter"));
     audioDeviceManager->initialiseWithDefaultDevices(2, 2);
@@ -27,6 +27,11 @@ audioDeviceManager(new AudioDeviceManager)
     
     addAndMakeVisible(filePlayerGui);
     addAndMakeVisible(filePlayerGui1);
+    
+    fileControlMinus.addListener(this);
+    addAndMakeVisible(&fileControlMinus);
+    fileControlPlus.addListener(this);
+    addAndMakeVisible(&fileControlPlus);
     
     filePan.addListener(this);
     filePan.setTextBoxStyle(filePan.NoTextBox, false, 0, 0);
@@ -57,12 +62,23 @@ audioDeviceManager(new AudioDeviceManager)
     masterB.setButtonText("Master B");
     addAndMakeVisible(&masterB);
     
-    fileChooser = new FileBrowserComponent(FileBrowserComponent::FileChooserFlags::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::canSelectDirectories | FileBrowserComponent::FileChooserFlags::useTreeView, File("/Users/harrygardiner/Music"), wavFiles.get(), nullptr);
+    record.addListener(this);
+    record.setButtonText("Record");
+    addAndMakeVisible(&record);
+    
+    fileChooser = new FileBrowserComponent(FileBrowserComponent::FileChooserFlags::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles | FileBrowserComponent::FileChooserFlags::canSelectDirectories | FileBrowserComponent::FileChooserFlags::useTreeView, File("/Users/harrygardiner/Desktop/Temp dj folder"), wavFiles.get(), nullptr);
     
     
     fileChooser->addListener(this);
     addAndMakeVisible(fileChooser);
     
+    filePan.getValueObject().referTo(audioState.getPropertyAsValue(AudioState::crossfader, nullptr));
+    masterGain.getValueObject().referTo(audioState.getPropertyAsValue(AudioState::masterVolume, nullptr));
+    loadA.getToggleStateValue().referTo(audioState.getPropertyAsValue(AudioState::loadA, nullptr));
+    loadB.getToggleStateValue().referTo(audioState.getPropertyAsValue(AudioState::loadB, nullptr));
+    masterGain.getValueObject().referTo(audioState.getPropertyAsValue(AudioState::masterVolume, nullptr));
+fileControlPlus.getToggleStateValue().referTo(audioState.getPropertyAsValue(AudioState::selectionControlPlus, nullptr));
+fileControlMinus.getToggleStateValue().referTo(audioState.getPropertyAsValue(AudioState::selectionControlMinus, nullptr));
     
     setSize(1250, 650);
     
@@ -86,6 +102,7 @@ void MainComponent::resized()
     masterGain.setBounds((getWidth()/2) - 120, 0, 60, 60);
     filePan.setBounds((getWidth()/2) - 120, getHeight()-40, 240, 20);
     fileChooser->setBounds(0, 390, getWidth(), 200);
+    record.setBounds((getWidth()/2) + 120, 0, 60, 60);
     
     //Load & Master Buttons
     Rectangle<int> loadMasterBounds (getWidth()/3, 300, getWidth()/3, 50);
@@ -120,6 +137,8 @@ void MainComponent::sliderValueChanged(Slider* slider)
     }
     else if (slider == &filePan)
     {
+        audio.setChannelGain(filePlayerGui.crossfadeFileGainValue(), 0);
+        audio.setChannelGain(filePlayerGui1.crossfadeFileGainValue(), 1);
         audio.crossfadeGain(filePan.getValue(), filePlayerGui.crossfadeFileGainValue(), filePlayerGui1.crossfadeFileGainValue());
     }
     
@@ -128,6 +147,14 @@ void MainComponent::sliderValueChanged(Slider* slider)
 
 void MainComponent::buttonClicked(Button* button)
 {
+    
+    
+}
+
+void MainComponent::buttonStateChanged(juce::Button *button)
+{
+     if (button->isDown() == true || button->getToggleState() == true)
+     {
     if (button == &loadA)
     {
         if (filePlayerGui.getMaster() == true)
@@ -214,7 +241,30 @@ void MainComponent::buttonClicked(Button* button)
         masterA.setColour(masterA.buttonColourId, juce::Colours::darkgrey);
         
     }
+    else if (button == &record)
+    {
+        audio.setSave(!save);
+        save = !save;
+        if (save == true)
+        {
+            record.setColour(record.buttonColourId, Colours::red);
+        }
+    }
+//    else if (button == &fileControlPlus)
+//    {
+//        fileDoubleClicked(fileChooser->getSelectedFile(fileNum));
+//        fileNum = fileNum + 1;
+//        fileControlPlus.setToggleState(false, dontSendNotification);
+//    }
+//    else if (button == &fileControlMinus)
+//    {
+//        fileDoubleClicked(fileChooser->getSelectedFile(fileNum));
+//        fileNum = fileNum - 1;
+//        fileControlMinus.setToggleState(false, dontSendNotification);
+//    }
+     }
 }
+
 void MainComponent::selectionChanged()
 {
     
@@ -285,6 +335,8 @@ void MainComponent::lookAndFeelChanged()
 {
     
 }
+
+
 
 
 //MenuBarCallbacks==============================================================

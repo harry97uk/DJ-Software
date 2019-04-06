@@ -17,12 +17,16 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "FilePlayer.h"
-#include "EQ.hpp"
+#include "../audio/effects/EQ.hpp"
 #include "MIDImapper.hpp"
+#include "AudioState.hpp"
+
+enum {playButton = 0, syncButton, inLoopButton, outLoopButton, eightBarButton, halfLoopButton};
 
 
 class Audio :   public MidiInputCallback,
-                public AudioIODeviceCallback
+                public AudioIODeviceCallback,
+                public ValueTree::Listener
 
 {
 public:
@@ -35,7 +39,9 @@ public:
     /** Returns the audio device manager, don't keep a copy of it! */
     AudioDeviceManager& getAudioDeviceManager() { return audioDeviceManager;}
     
-    FilePlayer& getFilePlayer(int fileNum) { return filePlayer[fileNum]; }
+    FilePlayer& getFilePlayer(int fileNum);
+    
+    ValueTree& getState() {return midiMapper.getState();}
     
     void handleIncomingMidiMessage (MidiInput* source, const MidiMessage& message) override;
     
@@ -55,18 +61,33 @@ public:
      @param FileGain is the value of the file gain as constant*/
     void crossfadeGain(float sliderValue, float FileGain, float FileGain1);
     
-    int getButtonNum() {return buttonNum;}
+    void setChannelGain(float sliderValue, int chanNum);
+    
+    void setSave(bool save);
+    
+    void saveAudio();
     
     
+    //ValueTreeListener
+    void valueTreePropertyChanged (ValueTree& treeWhosePropertyHasChanged, const Identifier& property) override;
+    void valueTreeChildAdded (ValueTree& parentTree, ValueTree& childWhichHasBeenAdded) override {};
+    void valueTreeChildRemoved (ValueTree& parentTree, ValueTree& childWhichHasBeenRemoved, int indexFromWhichChildWasRemoved) override {};
+    void valueTreeChildOrderChanged (ValueTree& parentTreeWhoseChildrenHaveMoved, int oldIndex, int newIndex) override {};
+    void valueTreeParentChanged (ValueTree& treeWhoseParentHasChanged) override {};
     
 private:
     AudioDeviceManager audioDeviceManager;
     AudioSourcePlayer audioSourcePlayer;
-    FilePlayer filePlayer[2];
+    std::unique_ptr<FilePlayer> filePlayerChannel0;
+    std::unique_ptr<FilePlayer> filePlayerChannel1;
     MixerAudioSource mixerAudioSource;
-    //MidiMapper midiMapper;
-    int buttonNum;
+    std::unique_ptr<AudioState> state;
+    MidiMapper midiMapper;
+    AudioSampleBuffer audioSampleBuffer;
+    float gainValChan0 = 1, gainValChan1 = 1;
     
+    bool Sync = false;
+    bool record = false;
     
 };
 

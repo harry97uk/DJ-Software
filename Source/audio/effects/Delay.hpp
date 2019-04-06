@@ -9,7 +9,7 @@
 #define Delay_hpp
 
 #include <stdio.h>
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
 class DelaySignal
 {
@@ -24,8 +24,7 @@ public:
     Float32 read (float delayTime);
     
     void write (float channel);
-    
-    Float32 delayRamp(float delayStartValue, float delayEndValue, int numSamples);
+
     
 private:
     Float32 *pfCircularBuffer;

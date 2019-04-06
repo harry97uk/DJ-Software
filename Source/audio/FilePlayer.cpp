@@ -1,20 +1,12 @@
-/*
-  ==============================================================================
 
-    FilePlayer.cpp
-    Created: 22 Jan 2013 2:49:14pm
-    Author:  tj3-mitchell
-
-  ==============================================================================
-*/
 
 #include "FilePlayer.h"
 #include <memory>
+#include "AudioState.hpp"
 
-FilePlayer::FilePlayer() :  thread ("FilePlayThread"), resampler(&audioSource, false, 2)
+FilePlayer::FilePlayer (ValueTree& state) :  thread ("FilePlayThread"), resampler(&audioSource, false, 2)
 {
     thread.startThread();
-    currentAudioFileSource = NULL;
     formatManager.registerBasicFormats();
     BpmRatio = 1;
 }
@@ -70,7 +62,7 @@ void FilePlayer::loadFile(const File& newFile)
     {
         //currentFile = audioFile;
 
-        audioSource.SetSource(reader, false);
+        audioSource.SetSource(reader, true);
        
         
         // ..and plug it into our transport source
@@ -92,7 +84,7 @@ void FilePlayer::setPosition(float newPosition)
 float FilePlayer::getPosition()
 {
     float position;
-    position = audioSource.GetPlayhead()/totalSamples;
+    position = audioSource.GetPlayhead()/(totalSamples/BpmRatio);
     return position;
 }
 
@@ -123,7 +115,7 @@ int64 FilePlayer::getTotalSamples()
     return totalSamples;
 }
 
-void FilePlayer::setLoopStart(float start)
+void FilePlayer::setLoopStart(int start)
 {
     loopSample = start;
 }
@@ -161,8 +153,10 @@ void FilePlayer::setLooping(bool newState, float secondsPerBeat, int bars)
     
 }
 
-
-
+void FilePlayer::setSecondsPerBeat(float secondsPerBeat)
+{
+    secondsPB = secondsPerBeat;
+}
 
 
 //AudioSource
@@ -174,11 +168,12 @@ void FilePlayer::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
     resampler.prepareToPlay(samplesPerBlockExpected, sampleRate);
     delay[0].initialize(sampleRate);
     delay[1].initialize(sampleRate);
-    for (int counter = 0; counter < 16; counter++)
-    {
-        reverb[0][counter].initialize(sampleRate);
-        reverb[1][counter].initialize(sampleRate);
-    }
+    
+        reverb[0].initialize(sampleRate);
+        reverb[1].initialize(sampleRate);
+    
+    
+    
     
 }
 
@@ -200,25 +195,46 @@ void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
         {
             float sample = bufferToFill.buffer->getSample (chan, counter);
 
-            sample += eq[chan].filterSamples (sample, kBass, 0, 0, 0) * eq[chan].getFreqGain(0);
-            sample += eq[chan].filterSamples (sample, kMid, 0, 0, 0)  * eq[chan].getFreqGain(1);
-            sample += eq[chan].filterSamples (sample, kHigh, 0, 0, 0) * eq[chan].getFreqGain(2);
+            //EQ
+            sample += eq[chan].filterSamples (sample, kBass) * eq[chan].getFreqGain(0);
+            sample += eq[chan].filterSamples (sample, kMid)  * eq[chan].getFreqGain(1);
+            sample += eq[chan].filterSamples (sample, kHigh) * eq[chan].getFreqGain(2);
             
-            sample = eq[chan].filterSamples (sample, kGlobalFilter, lastFilterValue, filterValue, bufferToFill.numSamples);
+            //Filter
+            if (lastFilterValue != filterValue)
+            {
+                lastFilterValue += (filterValue - lastFilterValue)/bufferToFill.numSamples;
+            }
             
-            sample += delay[chan].delayRamp(lastDelayValue
-                                            , delayValue
-                                            , bufferToFill.numSamples);
+            sample = filter[chan].filterSamples (sample, lastFilterValue, sRate);
+            
+            //Delay
+            if (lastDelayValue != delayValue)
+            {
+                lastDelayValue += (delayValue - lastDelayValue)/bufferToFill.numSamples;
+            }
+            
+            sample += delay[chan].read(lastDelayValue * (1/secondsPB)) * (lastDelayValue);
             delay[chan].write (sample);
             
-            for (int counter = 0; counter < 16; counter++)
+            //Reverb
+            if (lastReverbValue != reverbValue)
             {
-                reverb[chan][counter].write (sample);
+                lastReverbValue += (reverbValue - lastReverbValue)/bufferToFill.numSamples;
             }
-            for (int counter = 0; counter < 16; counter++)
-            {
-                sample += eq[chan].filterSamples (reverb[chan][counter].read(reverbValue/1.5) * 0.3, kReverbFilter, 0, 0, 0);
-            }
+           
+                if (chan == 0)
+                {
+                    sample += reverb[chan].read(lastReverbValue * 0.73) * 0.5;
+                    
+                }
+                if (chan == 1)
+                {
+                    sample += reverb[chan].read(lastReverbValue) * 0.5;
+                    
+                }
+                reverb[chan].write (sample);
+
 
             
             
@@ -227,8 +243,10 @@ void FilePlayer::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
             
         }
     }
-    lastDelayValue = delayValue;
+    lastReverbValue = reverbValue;
     lastFilterValue = filterValue;
     lastGain = gain;
     
 }
+
+
